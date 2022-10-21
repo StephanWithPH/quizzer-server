@@ -7,7 +7,7 @@ const {findTeamById} = require("../queries/teamQueries");
 const createNoOtherTypeOfClientMiddleware = (clientType) => {
   return (async (req, res, next) => {
     if (req.session.role && req.session.role !== clientType) {
-      let error = new Error("Het is niet mogelijk om meerdere verschillende typen quiz clients tegelijk open te hebben. Herstart uw browser.");
+      let error = new Error("Het is niet mogelijk om meerdere verschillende typen quiz clients in dezelfde browser te gebruiken. Probeer een incognito tabblad.");
       error.status = 400;
       return next(error);
     }

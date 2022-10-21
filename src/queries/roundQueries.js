@@ -33,7 +33,7 @@ async function addGivenAnswerToAskedQuestion(lobby, roundId, askedQuestionId, te
     let round = quiz.rounds.id(roundId);
     let askedQuestion = round.askedQuestions.id(askedQuestionId);
     if(askedQuestion.closed) {
-        throw new Error("Asked question is already closed");
+        throw new Error("Deze vraag is al gesloten.");
     }
     // Insert or update given answer
     let givenAnswer = askedQuestion.givenAnswers.find(givenAnswer => {
