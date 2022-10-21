@@ -5,7 +5,9 @@ const bodyParser = require('body-parser')
 const http = require('http');
 const WebSocket = require('ws');
 const {setWebsocketServer} = require("./socketserver");
-const {makeConnection} = require("./helpers/mongooseHelper");
+const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
+const Store = require("express-session/session/store");
+const MongooseStore = require('mongoose-express-session')(Store);
 
 const app = express();
 makeConnection();
@@ -26,6 +28,9 @@ const sessionOptions = {
   saveUninitialized: false,
   secret: '$eCuRiTy',
   resave: false,
+  store: new MongooseStore({
+    connection: getMongoose(),
+  })
 }
 
 if(process.env.HTTPS) {
