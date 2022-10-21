@@ -84,6 +84,12 @@ websocketServer.on('connection', (socket, req) => {
   socket.session = req.session;
 });
 
+setInterval(() => {
+	websocketServer.clients.forEach(client => {
+		client.send("ping");
+	});
+}, 5000);
+
 // Start the server.
 const port = process.env.PORT || 4000;
 httpServer.listen(port, () => console.log(`Listening on port ${port}`));
