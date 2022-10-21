@@ -6,7 +6,7 @@ const {
     createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware,
     createTeamAcceptedMiddleware, createFindTeamByIdMiddleware,
     createTeamExistsMiddleware, createTeamNameLengthMiddleware, createAnswerQuestionLengthMiddleware,
-    createTeamNameExistsMiddleware, createAnswerExistsMiddleware
+    createTeamNameExistsMiddleware, createAnswerExistsMiddleware, createNoOtherTypeOfClientMiddleware
 } = require("./middleware");
 const {getAllRoundsWithoutAnswers, addGivenAnswerToAskedQuestion} = require("../queries/roundQueries");
 const base64ImageToFile = require('base64image-to-file');
@@ -15,7 +15,7 @@ const Path = require("path");
 /**
  * Join with a team
  */
-router.post('/quizzes/:lobby/teams', createTeamNameExistsMiddleware(), createTeamNameLengthMiddleware(), async (req, res, next) => {
+router.post('/quizzes/:lobby/teams', createNoOtherTypeOfClientMiddleware("team"),createTeamNameExistsMiddleware(), createTeamNameLengthMiddleware(), async (req, res, next) => {
     try {
         const {name, image} = req.body;
         const {lobby} = req.params;

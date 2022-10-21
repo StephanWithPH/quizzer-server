@@ -1,5 +1,7 @@
 const router = require('express').Router();
-const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware} = require("./middleware");
+const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware,
+  createNoOtherTypeOfClientMiddleware
+} = require("./middleware");
 const Quiz = require("../models/quiz");
 const {broadcastToQuizmaster} = require("../socketserver");
 const {getAllRounds} = require("../queries/roundQueries");
@@ -9,7 +11,7 @@ const {getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
 /**
  * Connect a new scoreboard to the provided quiz
  */
-router.post('/quizzes/:lobby/scoreboards', async (req, res, next) => {
+router.post('/quizzes/:lobby/scoreboards', createNoOtherTypeOfClientMiddleware("sb"), async (req, res, next) => {
   try {
     const { lobby } = req.params;
 

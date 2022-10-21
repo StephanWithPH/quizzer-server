@@ -2,6 +2,20 @@ const {findQuizByLobby} = require("../queries/quizQueries");
 const {findTeamById} = require("../queries/teamQueries");
 
 /**
+ * No other type client middleware to prevent session mixing
+ */
+const createNoOtherTypeOfClientMiddleware = (clientType) => {
+  return (async (req, res, next) => {
+    if (req.session.role && req.session.role !== clientType) {
+      let error = new Error("Het is niet mogelijk om meerdere verschillende typen quiz clients tegelijk open te hebben. Herstart uw browser.");
+      error.status = 400;
+      return next(error);
+    }
+    next();
+  });
+}
+
+/**
  * Middleware to check if the length of the team name is not too long
  */
 const createTeamNameLengthMiddleware = (length = 30) => {
@@ -143,5 +157,6 @@ module.exports = {
   createTeamNameLengthMiddleware,
   createAnswerQuestionLengthMiddleware,
   createTeamNameExistsMiddleware,
-  createAnswerExistsMiddleware
+  createAnswerExistsMiddleware,
+  createNoOtherTypeOfClientMiddleware
 }

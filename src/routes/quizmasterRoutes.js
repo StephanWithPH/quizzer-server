@@ -2,7 +2,9 @@ const {createNewQuiz, findQuizByLobby, endQuiz} = require("../queries/quizQuerie
 const {generateLobbyCode} = require("../helpers/lobbyHelper");
 const router = require('express').Router();
 const Quiz = require('../models/quiz');
-const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware} = require("./middleware");
+const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware,
+  createNoOtherTypeOfClientMiddleware
+} = require("./middleware");
 const {updateTeamAcceptedById, deleteTeam, updateTeamsAcceptedInLobby} = require("../queries/teamQueries");
 const {getWebsocketServer, broadcastToTeam, broadcastToTeams, broadcastToQuizmaster, broadcastToScoreboard} = require("../socketserver");
 const {getCategoriesFromQuestions, getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
@@ -12,7 +14,7 @@ const {calculatePoints, calculateAndSavePoints, getCorrectAnswersPerTeam} = requ
 /**
  * Create a new quiz
  */
-router.post('/quizzes', async (req, res, next) => {
+router.post('/quizzes', createNoOtherTypeOfClientMiddleware("qm"), async (req, res, next) => {
   try {
     let generatedLobbyCode = generateLobbyCode(5);
     let uniqueLobbyCode = false;

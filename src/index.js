@@ -22,16 +22,22 @@ app.use(bodyParser.json({
   limit: '500mb'
 }));
 
-const sessionParser = session({
+const sessionOptions = {
   saveUninitialized: false,
   secret: '$eCuRiTy',
   resave: false,
-  proxy: true,
-  cookie : {
+}
+
+if(process.env.HTTPS) {
+  sessionOptions.proxy = process.env.HTTPS ? true : false,
+  sessionOptions.cookie = {
     sameSite: 'none',
-	secure: true
+    secure: process.env.HTTPS ? true : false
   }
-});
+}
+
+const sessionParser = session(sessionOptions);
+
 app.use(sessionParser);
 
 /// Routes
