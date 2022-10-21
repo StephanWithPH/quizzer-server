@@ -29,10 +29,10 @@ const sessionOptions = {
 }
 
 if(process.env.HTTPS) {
-  sessionOptions.proxy = process.env.HTTPS ? true : false,
+  sessionOptions.proxy = true;
   sessionOptions.cookie = {
     sameSite: 'none',
-    secure: process.env.HTTPS ? true : false
+    secure: true
   }
 }
 
