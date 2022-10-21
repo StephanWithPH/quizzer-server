@@ -88,7 +88,7 @@ setInterval(() => {
 	websocketServer.clients.forEach(client => {
 		client.send("ping");
 	});
-}, 5000);
+}, 20000);
 
 // Start the server.
 const port = process.env.PORT || 4000;
