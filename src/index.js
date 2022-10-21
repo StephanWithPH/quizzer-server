@@ -27,7 +27,7 @@ const sessionParser = session({
   resave: false,
   cookie : {
     sameSite: 'none',
-	secure: process.env.HTTPS ? true : false
+	secure: true
   }
 });
 app.use(sessionParser);
