@@ -26,6 +26,7 @@ const sessionParser = session({
   saveUninitialized: false,
   secret: '$eCuRiTy',
   resave: false,
+  proxy: true,
   cookie : {
     sameSite: 'none',
 	secure: true
