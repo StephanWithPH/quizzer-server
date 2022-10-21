@@ -12,7 +12,7 @@ makeConnection();
 
 // Cors options
 app.use(cors({origin: true, credentials: true}));
-app.options("*", cors({origin: true, credentials: true}));
+app.options("https://quizzer.stephantollenaar.nl", cors({origin: true, credentials: true}));
 
 app.use('/static', express.static('static'))
 
