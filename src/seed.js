@@ -3,7 +3,7 @@ const questions = require("./questions.json");
 const Question = require("./models/question");
 
 // Database connection
-mongoose.connect('mongodb://127.0.0.1:27017/quizzer');
+mongoose.connect('mongodb+srv://stephanwithph:stephanwithph123@quizzer.yy68h63.mongodb.net/?retryWrites=true&w=majority');
 
 const insertQuestions = () => {
   Question.countDocuments({}, (err, c) => {
