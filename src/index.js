@@ -24,7 +24,10 @@ app.use(bodyParser.json({
 const sessionParser = session({
   saveUninitialized: false,
   secret: '$eCuRiTy',
-  resave: false
+  resave: false,
+  cookie : {
+    sameSite: 'none', // THIS is the config you are looing for.
+  }
 });
 app.use(sessionParser);
 
