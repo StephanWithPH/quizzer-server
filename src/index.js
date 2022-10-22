@@ -86,7 +86,9 @@ websocketServer.on('connection', (socket, req) => {
 
 setInterval(() => {
 	websocketServer.clients.forEach(client => {
-		client.send("ping");
+		client.send(JSON.stringify({
+			"type": "PING"
+		}));
 	});
 }, 20000);
 
