@@ -1,3 +1,8 @@
+// Load .env file
+require('dotenv').config({
+  path: '../.env'
+});
+
 const session = require('express-session');
 const express = require('express');
 const cors = require('cors');               // needed for using webpack-devserver with express server
