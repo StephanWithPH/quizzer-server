@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const questions = require("./questions.json");
 const Question = require("./models/question");
+require('dotenv').config({
+  path: '../.env'
+});
 
 // Database connection
-mongoose.connect('mongodb+srv://stephanwithph:stephanwithph123@quizzer.yy68h63.mongodb.net/?retryWrites=true&w=majority');
+mongoose.connect(process.env.DATABASE_URL);
 
 const insertQuestions = () => {
   Question.countDocuments({}, (err, c) => {
