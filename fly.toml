@@ -8,6 +8,10 @@ processes = []
 [build]
   builder = "heroku/buildpacks:20"
 
+[mounts]
+  source="static_files"
+  destination="/src/static"
+
 [env]
   PORT = "8080"
   HTTPS = "true"
