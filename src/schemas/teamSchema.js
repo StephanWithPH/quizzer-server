@@ -19,9 +19,12 @@ const teamSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: () => {
-            let amountOfImages = 17;
-            const randomNumber = Math.floor(Math.random() * amountOfImages) + 1;
-            return `/static/images/teamplaceholders/${randomNumber}.jpg`
+            if(process.env.RANDOM_TEAM_IMAGES) {
+                let amountOfImages = 17;
+                const randomNumber = Math.floor(Math.random() * amountOfImages) + 1;
+                return `/static/images/teamplaceholders/${randomNumber}.jpg`
+            }
+            return undefined;
         }
     }
 });
