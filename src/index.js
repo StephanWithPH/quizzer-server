@@ -3,7 +3,6 @@ require('dotenv').config({
   path: '../.env'
 });
 
-const session = require('express-session');
 const express = require('express');
 const cors = require('cors');               // needed for using webpack-devserver with express server
 const bodyParser = require('body-parser')
@@ -12,9 +11,11 @@ const WebSocket = require('ws');
 const {setWebsocketServer} = require("./socketserver");
 const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
 const Store = require("express-session/session/store");
-const MongooseStore = require('mongoose-express-session')(Store);
+const jose = require("jose");
 
 const app = express();
+const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+
 makeConnection();
 
 // Cors options
@@ -29,28 +30,7 @@ app.use(bodyParser.json({
   limit: '500mb'
 }));
 
-const sessionOptions = {
-  saveUninitialized: false,
-  secret: '$eCuRiTy',
-  resave: false,
-  store: new MongooseStore({
-    connection: getMongoose(),
-  })
-}
-
-if(process.env.HTTPS) {
-  sessionOptions.proxy = true;
-  sessionOptions.cookie = {
-    sameSite: 'none',
-    secure: true
-  }
-}
-
-const sessionParser = session(sessionOptions);
-
-app.use(sessionParser);
-
-/// Routes
+// Routes
 
 app.get('/ping', (req, res) => {
   res.status(200).json({message: 'pong'});
@@ -73,28 +53,43 @@ const websocketServer = new WebSocket.Server({noServer: true});
 setWebsocketServer(websocketServer);
 
 httpServer.on('upgrade', (req, networkSocket, head) => {
-  sessionParser(req, {}, () => {
+  console.log('Upgrading websocket.');
 
-
-    console.log('Session is parsed to websocket.');
-
-    websocketServer.handleUpgrade(req, networkSocket, head, newWebSocket => {
-      websocketServer.emit('connection', newWebSocket, req);
-    });
+  websocketServer.handleUpgrade(req, networkSocket, head, newWebSocket => {
+    websocketServer.emit('connection', newWebSocket, req);
   });
 });
 
 
 websocketServer.on('connection', (socket, req) => {
-  socket.session = req.session;
+  console.log('Websocket connected.');
+
+  socket.on('message', async (msg) => {
+    try {
+      let jsonMsg = JSON.parse(msg);
+      if (jsonMsg.type === 'TOKEN') {
+        console.log('Token received. Trying to authenticate.');
+        const {
+          payload,
+          protectedHeader
+        } = await jose.jwtVerify(jsonMsg.payload, secretKey);
+        // Get user that has at least this token in its tokens array
+        socket.session = {...payload};
+        console.log('Authenticated.');
+      }
+    }
+    catch (e) {
+      console.log(e);
+    }
+  });
 });
 
 setInterval(() => {
-	websocketServer.clients.forEach(client => {
-		client.send(JSON.stringify({
-			"type": "PING"
-		}));
-	});
+  websocketServer.clients.forEach(client => {
+    client.send(JSON.stringify({
+      "type": "PING"
+    }));
+  });
 }, 20000);
 
 // Start the server.

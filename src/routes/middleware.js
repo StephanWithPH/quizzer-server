@@ -1,19 +1,6 @@
 const {findQuizByLobby} = require("../queries/quizQueries");
 const {findTeamById} = require("../queries/teamQueries");
-
-/**
- * No other type client middleware to prevent session mixing
- */
-const createNoOtherTypeOfClientMiddleware = (clientType) => {
-  return (async (req, res, next) => {
-    if (req.session.role && req.session.role !== clientType) {
-      let error = new Error("Het is niet mogelijk om meerdere verschillende typen quiz clients in dezelfde browser te gebruiken. Probeer een incognito tabblad.");
-      error.status = 400;
-      return next(error);
-    }
-    next();
-  });
-}
+const jose = require("jose");
 
 /**
  * Middleware to check if the length of the team name is not too long
@@ -56,6 +43,38 @@ const createRoleMiddleware = (role) => {
     next();
   }
 }
+
+const checkIfUserAuthenticatedWithBearerToken = () => async (req, res, next) => {
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    const error = new Error('No authorization header found');
+    error.status = 401;
+    return next(error);
+  }
+  const token = authorizationHeader.split(' ')[1];
+  if (!token) {
+    const error = new Error('No token found in authorization header');
+    error.status = 401;
+    return next(error);
+  }
+  const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+
+  try {
+    const {
+      payload,
+      protectedHeader
+    } = await jose.jwtVerify(token, secretKey);
+
+    // Get user that has at least this token in its tokens array
+    req.session = {...payload};
+
+    next();
+  } catch (e) {
+    const error = new Error("Invalid token");
+    error.status = 401;
+    next(error);
+  }
+};
 
 /**
  * Middleware to find quiz by lobby code
@@ -158,5 +177,5 @@ module.exports = {
   createAnswerQuestionLengthMiddleware,
   createTeamNameExistsMiddleware,
   createAnswerExistsMiddleware,
-  createNoOtherTypeOfClientMiddleware
+  checkIfUserAuthenticatedWithBearerToken
 }

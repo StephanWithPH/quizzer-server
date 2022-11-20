@@ -24,6 +24,7 @@
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "http": "^0.0.1-security",
+    "jose": "^4.11.0",
     "mongoose": "^6.6.5",
     "mongoose-express-session": "^0.0.5",
     "ws": "^8.9.0"
