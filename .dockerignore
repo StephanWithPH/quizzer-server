@@ -1,6 +1,6 @@
 # flyctl launch added from .gitignore
 #
-**\static
+**\src\static\images\teams\
 
 # Logs
 **\logs
