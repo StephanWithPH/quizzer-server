@@ -12,6 +12,7 @@ const {setWebsocketServer} = require("./socketserver");
 const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
 const Store = require("express-session/session/store");
 const jose = require("jose");
+const {staticFolder} = require("./constants");
 
 const app = express();
 const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
@@ -23,7 +24,7 @@ app.use(cors({origin: true, credentials: true}));
 app.options("*", cors({origin: true, credentials: true}));
 app.set('trust proxy', 1);
 
-app.use('/static', express.static('./static'))
+app.use('/static', express.static(staticFolder))
 
 app.use(bodyParser.json({
   extended: true,

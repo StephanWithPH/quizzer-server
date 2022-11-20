@@ -13,6 +13,8 @@ const {getAllRoundsWithoutAnswers, addGivenAnswerToAskedQuestion} = require("../
 const base64ImageToFile = require('base64image-to-file');
 const Path = require("path");
 const {signJwt} = require("../helpers/jwtHelper");
+const crypto = require("crypto");
+const {staticFolder} = require("../constants");
 
 /**
  * Join with a team
@@ -49,15 +51,16 @@ router.post('/quizzes/:lobby/teams', createTeamNameExistsMiddleware(), createTea
     // Check if there is an image, if yes then save it and retrieve the path
     let imagePath = undefined;
     if (image && image.length > 0) {
-      const path = './static/images/teams';
+      const path = staticFolder + "/images/teams";
+      const imgName = crypto.randomBytes(20).toString('hex');
       imagePath = await new Promise((resolve, reject) => {
-        base64ImageToFile(image, path, function (err, imgPath) {
+        base64ImageToFile(image, path, imgName, function (err, imgPath) {
           if (err) {
             const error = new Error("Fout met uploaden van de afbeelding");
             error.status = 500;
             reject(error);
           }
-          resolve(imgPath.slice(1));
+          resolve(`/static/images/teams/${imgName}.png`);
         });
       });
     }
