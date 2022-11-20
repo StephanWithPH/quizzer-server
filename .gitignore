@@ -1,5 +1,3 @@
-#
-static/images
 
 # Logs
 logs
@@ -107,3 +105,4 @@ dist
 .tern-port
 
 .idea
+/src/static/images/teams/
