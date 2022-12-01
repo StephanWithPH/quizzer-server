@@ -10,7 +10,7 @@ processes = []
 
 [mounts]
   source="static_files"
-  destination="/src/static"
+  destination="/src/static/images/teams"
 
 [env]
   PORT = "8080"
