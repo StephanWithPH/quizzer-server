@@ -1,17 +1,18 @@
 const router = require('express').Router();
 const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware,
-  createNoOtherTypeOfClientMiddleware
+  checkIfUserAuthenticatedWithBearerToken
 } = require("./middleware");
 const Quiz = require("../models/quiz");
 const {broadcastToQuizmaster} = require("../socketserver");
 const {getAllRounds} = require("../queries/roundQueries");
 const {getPodiumTeams} = require("../helpers/pointsHelper");
 const {getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
+const {signJwt} = require("../helpers/jwtHelper");
 
 /**
  * Connect a new scoreboard to the provided quiz
  */
-router.post('/quizzes/:lobby/scoreboards', createNoOtherTypeOfClientMiddleware("sb"), async (req, res, next) => {
+router.post('/quizzes/:lobby/scoreboards', async (req, res, next) => {
   try {
     const { lobby } = req.params;
 
@@ -24,15 +25,17 @@ router.post('/quizzes/:lobby/scoreboards', createNoOtherTypeOfClientMiddleware("
       throw error;
     }
 
-    // Set session credentials for this new scoreboard, so we can identify it in later requests
-    req.session.role = 'sb';
-    req.session.lobby = lobby;
-
     // Let the quizmaster know the scoreboard has been connected
     broadcastToQuizmaster("SCOREBOARD_CONNECTED", lobby);
 
+    const jwt = await signJwt({
+      role: 'sb',
+      lobby: lobby
+    }) ;
+
     res.status(200).json({
       message: "Scoreboard connected",
+      token: jwt,
     });
   }
   catch (e) {
@@ -43,6 +46,7 @@ router.post('/quizzes/:lobby/scoreboards', createNoOtherTypeOfClientMiddleware("
 /**
  * Apply middleware for 'logged in' routes
  */
+router.use(checkIfUserAuthenticatedWithBearerToken());
 router.use(createRoleMiddleware('sb'));
 router.use(createFindQuizByLobbyCodeMiddleware());
 router.use(createQuizExistsMiddleware());

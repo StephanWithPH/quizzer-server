@@ -13,25 +13,21 @@ let getWebsocketServer = () => {
 let broadcastToTeams = async (event, lobby) => {
   let quiz = await Quiz.findOne({lobby: lobby}).populate('teams');
   server.clients.forEach(client => {
-    client.session.reload((err) => {
-      let team = quiz.teams.find((team) => team._id.toString() === client.session._id);
-      if (client.session.role === 'team' && client.session.lobby === lobby && team && team.accepted) {
-        client.send(JSON.stringify({type: event}));
-      }
-    });
+    let team = quiz.teams.find((team) => team._id.toString() === client.session._id);
+    if (client.session.role === 'team' && client.session.lobby === lobby && team && team.accepted) {
+      client.send(JSON.stringify({type: event}));
+    }
   });
 }
 
 let broadcastToTeam = (event, lobby, teamId, disconnect = false) => {
   server.clients.forEach(client => {
-    client.session.reload((err) => {
-      if (client.session.role === 'team' && client.session.lobby === lobby && client.session._id === teamId) {
-        client.send(JSON.stringify({type: event}));
-        if(disconnect) {
-          client.close();
-        }
+    if (client.session.role === 'team' && client.session.lobby === lobby && client.session._id === teamId) {
+      client.send(JSON.stringify({type: event}));
+      if(disconnect) {
+        client.close();
       }
-    });
+    }
   });
 }
 

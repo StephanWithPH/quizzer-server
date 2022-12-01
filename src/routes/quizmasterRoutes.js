@@ -3,18 +3,19 @@ const {generateLobbyCode} = require("../helpers/lobbyHelper");
 const router = require('express').Router();
 const Quiz = require('../models/quiz');
 const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExistsMiddleware,
-  createNoOtherTypeOfClientMiddleware
+  checkIfUserAuthenticatedWithBearerToken
 } = require("./middleware");
 const {updateTeamAcceptedById, deleteTeam, updateTeamsAcceptedInLobby} = require("../queries/teamQueries");
 const {getWebsocketServer, broadcastToTeam, broadcastToTeams, broadcastToQuizmaster, broadcastToScoreboard} = require("../socketserver");
 const {getCategoriesFromQuestions, getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
 const {addNewRound, getAllRounds, closeAskedQuestion, updateGivenAnswer, finishRound} = require("../queries/roundQueries");
 const {calculatePoints, calculateAndSavePoints, getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
+const {signJwt} = require("../helpers/jwtHelper");
 
 /**
  * Create a new quiz
  */
-router.post('/quizzes', createNoOtherTypeOfClientMiddleware("qm"), async (req, res, next) => {
+router.post('/quizzes', async (req, res, next) => {
   try {
     let generatedLobbyCode = generateLobbyCode(5);
     let uniqueLobbyCode = false;
@@ -30,10 +31,13 @@ router.post('/quizzes', createNoOtherTypeOfClientMiddleware("qm"), async (req, r
     }
 
     // Insert new quiz into database
-    createNewQuiz(generatedLobbyCode).then((quiz) => {
-      req.session.role = 'qm';
-      req.session.lobby = generatedLobbyCode;
-      res.status(201).json(quiz);
+    createNewQuiz(generatedLobbyCode).then(async (quiz) => {
+      const resQuiz = quiz.toObject();
+      resQuiz.token = await signJwt({
+        role: 'qm',
+        lobby: generatedLobbyCode
+      });
+      res.status(201).json(resQuiz);
     });
   }
   catch (e) {
@@ -45,6 +49,7 @@ router.post('/quizzes', createNoOtherTypeOfClientMiddleware("qm"), async (req, r
 /**
  * Apply middleware for 'logged in' routes
  */
+router.use(checkIfUserAuthenticatedWithBearerToken());
 router.use(createRoleMiddleware('qm'));
 router.use(createFindQuizByLobbyCodeMiddleware());
 router.use(createQuizExistsMiddleware());

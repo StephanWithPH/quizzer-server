@@ -8,9 +8,14 @@ processes = []
 [build]
   builder = "heroku/buildpacks:20"
 
+[mounts]
+  source="static_files"
+  destination="/src/static/images/teams"
+
 [env]
   PORT = "8080"
   HTTPS = "true"
+  RANDOM_TEAM_IMAGES = "true"
 
 [experimental]
   allowed_public_ports = []
