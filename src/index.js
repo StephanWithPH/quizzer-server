@@ -40,7 +40,7 @@ app.get('/ping', (req, res) => {
 app.use('/api/v1/quizmaster', require('./routes/quizmasterRoutes'));
 app.use('/api/v1/team', require('./routes/teamRoutes'));
 app.use('/api/v1/scoreboard', require('./routes/scoreboardRoutes'));
-
+app.use('/api/v1/admin', require('./routes/adminRoutes'));
 app.use((err, req, res, next) => {
   res.status(err.status ? err.status : 500).json({
     error: err.message ? err.message : 'Something went wrong',

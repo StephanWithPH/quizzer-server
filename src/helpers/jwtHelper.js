@@ -10,6 +10,18 @@ const signJwt = async (payload) => {
     .sign(secretKey);
 }
 
+const verifyJwt = async (token) => {
+  const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+
+  try {
+    await jose.jwtVerify(token, secretKey);
+  } catch (err) {
+    return false;
+  }
+  return true;
+}
+
 module.exports = {
-  signJwt
+  signJwt,
+  verifyJwt,
 }
