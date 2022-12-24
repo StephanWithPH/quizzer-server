@@ -27,6 +27,27 @@ async function getQuestionsByLobby(lobby) {
   return questions;
 }
 
+async function createQuestion(question, answer, category, image) {
+  return Question.create({
+    question: question,
+    answer: answer,
+    category: category,
+    image: image
+  });
+}
+
+async function getQuestionByQuestion(question) {
+  return Question.find({question: question});
+}
+
+async function getQuestionsByPage(page, perPage) {
+  return Question.find({}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
+}
+
+async function deleteQuestionById(id) {
+  return Question.deleteOne({_id: id});
+}
+
 async function addAskedQuestion(lobby, roundId, questionId) {
   const quiz = await Quiz.findOne({lobby: lobby}).select('rounds').populate('rounds.askedQuestions.question');
   const round = quiz.rounds.id(roundId);
@@ -35,8 +56,22 @@ async function addAskedQuestion(lobby, roundId, questionId) {
   return quiz.save();
 }
 
+async function deleteAllQuestions() {
+  return Question.deleteMany({});
+}
+
+async function getQuestionsCount() {
+  return Question.countDocuments();
+}
+
 module.exports = {
   getCategoriesFromQuestions,
   getQuestionsByLobby,
-  addAskedQuestion
+  addAskedQuestion,
+  deleteAllQuestions,
+  getQuestionsCount,
+  createQuestion,
+  getQuestionByQuestion,
+  getQuestionsByPage,
+  deleteQuestionById
 }

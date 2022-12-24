@@ -8,7 +8,7 @@ const cors = require('cors');               // needed for using webpack-devserve
 const bodyParser = require('body-parser')
 const http = require('http');
 const WebSocket = require('ws');
-const {setWebsocketServer} = require("./socketserver");
+const {setWebsocketServer, broadcastToAdmin} = require("./socketserver");
 const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
 const Store = require("express-session/session/store");
 const jose = require("jose");
@@ -65,6 +65,12 @@ httpServer.on('upgrade', (req, networkSocket, head) => {
 websocketServer.on('connection', (socket, req) => {
   console.log('Websocket connected.');
 
+  socket.on('close', () => {
+    if (socket.session.role === 'admin') {
+      broadcastToAdmin('SOCKET_DISCONNECTED');
+    }
+  });
+
   socket.on('message', async (msg) => {
     try {
       let jsonMsg = JSON.parse(msg);
@@ -77,6 +83,9 @@ websocketServer.on('connection', (socket, req) => {
         // Get user that has at least this token in its tokens array
         socket.session = {...payload};
         console.log('Authenticated.');
+        if (socket.session.role === 'admin') {
+          broadcastToAdmin("SOCKET_CONNECTED");
+        }
       }
     }
     catch (e) {

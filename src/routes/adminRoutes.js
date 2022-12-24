@@ -1,5 +1,13 @@
 const router = require('express').Router();
 const {signJwt, verifyJwt} = require("../helpers/jwtHelper");
+const {
+  deleteAllQuestions, getQuestionsCount, getCategoriesFromQuestions,
+  createQuestion, getQuestionByQuestion, getQuestionsByPage, deleteQuestionById
+} = require("../queries/questionQueries");
+const {getQuizzesCount} = require("../queries/quizQueries");
+const fs = require("fs");
+const {convertBase64ToImage} = require("../helpers/imageHelper");
+const {broadcastToQuizmaster, broadcastToAdmin} = require("../socketserver");
 
 /**
  * Admin Login
@@ -33,6 +41,122 @@ router.post('/validate', async (req, res, next) => {
     } else {
       res.status(401).json({error: "Token is niet geldig"});
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Gets the counts of questions, categories, quizzes and team images
+ */
+router.get('/information', async (req, res, next) => {
+  try {
+    const questions = await getQuestionsCount();
+    const quizzes = await getQuizzesCount();
+    const categories = await getCategoriesCount();
+    let images;
+
+    await fs.readdir('/static/images/teams', (err, files) => {
+      if (err) {
+        console.log(err);
+      }
+      images = files.length;
+    });
+
+    const responseObj = {
+      questions: questions,
+      quizzes: quizzes,
+      categories: categories,
+      images: images,
+    }
+
+    res.status(200).json(responseObj);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Gets all the questions
+ */
+router.get('/questions', async (req, res, next) => {
+  try {
+    const { page, perPage } = req.query;
+    const questions = await getQuestionsByPage(page, perPage);
+    res.status(200).json(questions);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Create a new question
+ */
+router.post('/questions', async (req, res, next) => {
+  try {
+    const {question, answer, category, base64Image } = req.body;
+
+    // Check if the question doesn't already exist
+    const questionExists = await getQuestionByQuestion(question);
+    if (questionExists.length > 0) {
+      res.status(409).json({error: "Deze vraag bestaat al"});
+      return;
+    }
+
+    let imagePath = undefined;
+
+    if (base64Image) {
+      imagePath = await convertBase64ToImage(base64Image, "questions");
+    }
+
+    const newQuestion = await createQuestion(question, answer, category, imagePath);
+    broadcastToAdmin("QUESTION_CREATED");
+    res.status(200).json(newQuestion);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Delete one question
+ */
+router.delete('/questions/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await deleteQuestionById(id);
+    broadcastToAdmin("QUESTION_DELETED");
+    res.status(204).json({
+      message: "Vraag verwijderd",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Delete all questions
+ */
+router.delete('/questions', async (req, res, next) => {
+  try {
+    await deleteAllQuestions();
+
+    broadcastToAdmin("QUESTIONS_DELETED");
+    res.status(204).json({
+      message: "Alle vragen zijn verwijderd"
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Gets all the categories from the questions
+ */
+router.get('/categories', async (req, res, next) => {
+  try {
+    const categories = await getCategoriesFromQuestions();
+
+    res.status(200).json(categories);
   } catch (err) {
     next(err);
   }

@@ -16,8 +16,13 @@ async function endQuiz(lobby){
   return Quiz.findOneAndUpdate({lobby: lobby}, {finished: true});
 }
 
+async function getQuizzesCount(){
+  return Quiz.countDocuments();
+}
+
 module.exports = {
   createNewQuiz,
   findQuizByLobby,
-  endQuiz
+  endQuiz,
+  getQuizzesCount
 }
