@@ -6,9 +6,8 @@ const {
   getQuestionsByOptionalSearch, getQuestionCountBySearch
 } = require("../queries/questionQueries");
 const {getQuizzesCount} = require("../queries/quizQueries");
-const fs = require("fs");
 const {convertBase64ToImage, countImages} = require("../helpers/imageHelper");
-const {broadcastToQuizmaster, broadcastToAdmin} = require("../socketserver");
+const {broadcastToAdmin} = require("../socketserver");
 
 /**
  * Admin Login
