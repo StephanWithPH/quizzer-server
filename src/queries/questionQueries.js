@@ -5,6 +5,10 @@ function getCategoriesFromQuestions() {
   return Question.distinct('category');
 }
 
+async function getQuestionById(id) {
+  return Question.findById(id);
+}
+
 async function getQuestionsByLobby(lobby) {
   const quiz = await Quiz.findOne({lobby: lobby}).select('rounds').populate('rounds.askedQuestions.question');
   const round = quiz.rounds[quiz.rounds.length - 1];
@@ -41,11 +45,27 @@ async function getQuestionByQuestion(question) {
 }
 
 async function getQuestionsByOptionalSearch(search, perPage, page) {
-  return Question.find(search ? { question: { $regex: search } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
 }
 
 async function getQuestionCountBySearch(search) {
-  return Question.find(search ? { question: { $regex: search } } : {}).sort({date: -1});
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).sort({date: -1});
+}
+
+async function updateQuestionInformationById(id, question, answer, category) {
+  return Question.findOneAndUpdate({_id: id}, {
+    question: question,
+    answer: answer,
+    category: category,
+    date: Date.now(),
+  }, {new: true});
+}
+
+async function updateQuestionImageById(id, image) {
+  return Question.findOneAndUpdate({_id: id}, {
+    image: image,
+    date: Date.now(),
+  }, {new: true});
 }
 
 async function deleteQuestionById(id) {
@@ -78,5 +98,8 @@ module.exports = {
   getQuestionByQuestion,
   getQuestionsByOptionalSearch,
   deleteQuestionById,
-  getQuestionCountBySearch
+  getQuestionCountBySearch,
+  getQuestionById,
+  updateQuestionInformationById,
+  updateQuestionImageById
 }

@@ -3,10 +3,11 @@ const {signJwt, verifyJwt} = require("../helpers/jwtHelper");
 const {
   deleteAllQuestions, getQuestionsCount, getCategoriesFromQuestions,
   createQuestion, getQuestionByQuestion, deleteQuestionById,
-  getQuestionsByOptionalSearch, getQuestionCountBySearch
+  getQuestionsByOptionalSearch, getQuestionCountBySearch, getQuestionById, updateQuestionInformationById,
+  updateQuestionImageById
 } = require("../queries/questionQueries");
 const {getQuizzesCount} = require("../queries/quizQueries");
-const {convertBase64ToImage, countImages} = require("../helpers/imageHelper");
+const {convertBase64ToImage, countImages, deleteQuestionImage, deleteFolder} = require("../helpers/imageHelper");
 const {broadcastToAdmin} = require("../socketserver");
 
 /**
@@ -70,6 +71,24 @@ router.get('/totals', async (req, res, next) => {
 });
 
 /**
+ * Get one question by id
+ */
+router.get('/questions/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const question = await getQuestionById(id);
+
+    if (question) {
+      res.status(200).json(question);
+    } else {
+      res.status(404).json({error: "Question not found"});
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Get questions by page and/or search the questions
  */
 router.get('/questions', async (req, res, next) => {
@@ -83,6 +102,59 @@ router.get('/questions', async (req, res, next) => {
       total: total.length,
     });
 
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Update one question's information by id
+ */
+router.put('/questions/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { question, answer, category } = req.body;
+
+    const updatedQuestion = await updateQuestionInformationById(id, question, answer, category);
+
+    if (updatedQuestion) {
+      res.status(200).json(updatedQuestion);
+    } else {
+      res.status(404).json({error: "Vraag niet gevonden"});
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Update one question's image by id
+ */
+router.patch('/questions/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { base64Image } = req.body;
+
+    let imagePath = '';
+
+    const question = await getQuestionById(id);
+
+    if (question.image) {
+      const imageName = question.image.split("/").pop();
+      await deleteQuestionImage(imageName);
+    }
+
+    if (base64Image) {
+      imagePath = await convertBase64ToImage(base64Image, "questions");
+    }
+
+    await updateQuestionImageById(id, imagePath);
+
+    if (question) {
+      res.status(200).json({ message: "Vraag bijgewerkt" });
+    } else {
+      res.status(404).json({error: "Vraag niet gevonden"});
+    }
   } catch (err) {
     next(err);
   }
@@ -122,12 +194,21 @@ router.post('/questions', async (req, res, next) => {
 router.delete('/questions/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    const question = await getQuestionById(id);
+
+    if (question.image) {
+      const imageName = question.image.split("/").pop();
+      await deleteQuestionImage(imageName);
+    }
     await deleteQuestionById(id);
+
     broadcastToAdmin("QUESTION_DELETED");
     res.status(204).json({
       message: "Vraag verwijderd",
     });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 });
@@ -138,6 +219,7 @@ router.delete('/questions/:id', async (req, res, next) => {
 router.delete('/questions', async (req, res, next) => {
   try {
     await deleteAllQuestions();
+    await deleteFolder('questions');
 
     broadcastToAdmin("QUESTIONS_DELETED");
     res.status(204).json({

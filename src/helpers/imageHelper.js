@@ -24,6 +24,54 @@ const convertBase64ToImage = async (base64String, targetFolder) => {
   }
 }
 
+const deleteQuestionImage = async (image) => {
+  const path = staticFolder + "/images/questions/";
+
+  return new Promise(async (resolve, reject) => {
+    if (fs.existsSync(path)) {
+      fs.readdir(path, (err, files) => {
+        if (err) {
+          const error = new Error("Fout met verwijderen van de afbeelding");
+          error.status = 500;
+          return reject(error);
+        }
+        const file = files.find((file) => file.includes(image));
+
+        if (file) {
+          return fs.unlink(path + file, (err) => {
+            if (err) {
+              const error = new Error("Fout met verwijderen van de afbeelding");
+              error.status = 500;
+              return reject(error);
+            }
+            return resolve("Afbeelding verwijderd");
+          });
+        }
+        return resolve("Geen afbeeldingen gevonden");
+      });
+    }
+  });
+}
+
+const deleteFolder = async (targetFolder) => {
+  const path = staticFolder + "/images/" + targetFolder;
+
+  return new Promise(async (resolve, reject) => {
+    if (fs.existsSync(path)) {
+      return fs.rm(path, { recursive: true }, err => {
+        if (err) {
+          const error = new Error("Fout met verwijderen van de afbeelding");
+          error.status = 500;
+          return reject(error);
+        }
+
+        return resolve("Afbeelding verwijderd");
+      })
+    }
+    return resolve("Geen afbeeldingen gevonden");
+  });
+}
+
 const countImages = async (targetFolder) => {
   return new Promise(async (resolve, reject) => {
     if (fs.existsSync(targetFolder)) {
@@ -41,5 +89,7 @@ const countImages = async (targetFolder) => {
 
   module.exports = {
     convertBase64ToImage,
-    countImages
+    countImages,
+    deleteQuestionImage,
+    deleteFolder
   }
