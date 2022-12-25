@@ -2,11 +2,12 @@ const router = require('express').Router();
 const {signJwt, verifyJwt} = require("../helpers/jwtHelper");
 const {
   deleteAllQuestions, getQuestionsCount, getCategoriesFromQuestions,
-  createQuestion, getQuestionByQuestion, getQuestionsByPage, deleteQuestionById
+  createQuestion, getQuestionByQuestion, deleteQuestionById,
+  getQuestionsByOptionalSearch, getQuestionCountBySearch
 } = require("../queries/questionQueries");
 const {getQuizzesCount} = require("../queries/quizQueries");
 const fs = require("fs");
-const {convertBase64ToImage} = require("../helpers/imageHelper");
+const {convertBase64ToImage, countImages} = require("../helpers/imageHelper");
 const {broadcastToQuizmaster, broadcastToAdmin} = require("../socketserver");
 
 /**
@@ -49,24 +50,17 @@ router.post('/validate', async (req, res, next) => {
 /**
  * Gets the counts of questions, categories, quizzes and team images
  */
-router.get('/information', async (req, res, next) => {
+router.get('/totals', async (req, res, next) => {
   try {
     const questions = await getQuestionsCount();
     const quizzes = await getQuizzesCount();
-    const categories = await getCategoriesCount();
-    let images;
-
-    await fs.readdir('/static/images/teams', (err, files) => {
-      if (err) {
-        console.log(err);
-      }
-      images = files.length;
-    });
+    const categories = await getCategoriesFromQuestions();
+    const images = await countImages('./static/images/teams');
 
     const responseObj = {
       questions: questions,
       quizzes: quizzes,
-      categories: categories,
+      categories: categories.length,
       images: images,
     }
 
@@ -77,13 +71,19 @@ router.get('/information', async (req, res, next) => {
 });
 
 /**
- * Gets all the questions
+ * Get questions by page and/or search the questions
  */
 router.get('/questions', async (req, res, next) => {
   try {
-    const { page, perPage } = req.query;
-    const questions = await getQuestionsByPage(page, perPage);
-    res.status(200).json(questions);
+    const { search, page, perPage } = req.query;
+
+    const questions = await getQuestionsByOptionalSearch(search, perPage, page);
+    const total = await getQuestionCountBySearch(search);
+    res.status(200).json({
+      questions,
+      total: total.length,
+    });
+
   } catch (err) {
     next(err);
   }

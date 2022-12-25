@@ -40,8 +40,12 @@ async function getQuestionByQuestion(question) {
   return Question.find({question: question});
 }
 
-async function getQuestionsByPage(page, perPage) {
-  return Question.find({}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
+async function getQuestionsByOptionalSearch(search, perPage, page) {
+  return Question.find(search ? { question: { $regex: search } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
+}
+
+async function getQuestionCountBySearch(search) {
+  return Question.find(search ? { question: { $regex: search } } : {}).sort({date: -1});
 }
 
 async function deleteQuestionById(id) {
@@ -72,6 +76,7 @@ module.exports = {
   getQuestionsCount,
   createQuestion,
   getQuestionByQuestion,
-  getQuestionsByPage,
-  deleteQuestionById
+  getQuestionsByOptionalSearch,
+  deleteQuestionById,
+  getQuestionCountBySearch
 }

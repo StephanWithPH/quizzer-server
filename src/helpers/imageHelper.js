@@ -1,6 +1,7 @@
 const {staticFolder} = require("../constants");
 const crypto = require("crypto");
 const base64ImageToFile = require("base64image-to-file");
+const fs = require("fs");
 
 const convertBase64ToImage = async (base64String, targetFolder) => {
 // Check if there is an image, if yes then save it and retrieve the path
@@ -25,6 +26,22 @@ const convertBase64ToImage = async (base64String, targetFolder) => {
   return imagePath;
 }
 
+const countImages = async (targetFolder) => {
+  return new Promise(async (resolve, reject) => {
+    if (fs.existsSync(targetFolder)) {
+      await fs.readdir(targetFolder, (err, files) => {
+        if (err) {
+          reject(err);
+        }
+        return resolve(files.length);
+      });
+    } else {
+      return resolve(0);
+    }
+  });
+}
+
   module.exports = {
-    convertBase64ToImage
+    convertBase64ToImage,
+    countImages
   }
