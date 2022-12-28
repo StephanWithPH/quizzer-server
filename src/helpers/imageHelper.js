@@ -87,9 +87,25 @@ const countImages = async (targetFolder) => {
   });
 }
 
+const getImagesFromFolder = async (targetFolder) => {
+  const path = staticFolder + "/images/" + targetFolder;
+
+  return new Promise(async (resolve, reject) => {
+    if (fs.existsSync(path)) {
+      await fs.readdir(path, (err, files) => {
+        if (err) {
+          reject(err);
+        }
+        return resolve(files);
+      });
+    }
+  });
+}
+
   module.exports = {
     convertBase64ToImage,
     countImages,
     deleteQuestionImage,
-    deleteFolder
+    deleteFolder,
+    getImagesFromFolder
   }

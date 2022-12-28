@@ -1,74 +1,17 @@
-const router = require('express').Router();
-const {signJwt, verifyJwt} = require("../helpers/jwtHelper");
 const {
-  deleteAllQuestions, getQuestionsCount, getCategoriesFromQuestions,
-  createQuestion, getQuestionByQuestion, deleteQuestionById,
-  getQuestionsByOptionalSearch, getQuestionCountBySearch, getQuestionById, updateQuestionInformationById,
-  updateQuestionImageById
-} = require("../queries/questionQueries");
-const {getQuizzesCount} = require("../queries/quizQueries");
-const {convertBase64ToImage, countImages, deleteQuestionImage, deleteFolder} = require("../helpers/imageHelper");
-const {broadcastToAdmin} = require("../socketserver");
-
-/**
- * Admin Login
- */
-router.post('/login', async (req, res, next) => {
-  try {
-    const {password} = req.body;
-    const envPassword = process.env.ADMIN_PASSWORD;
-    if (password === envPassword) {
-      const token = await signJwt({
-        role: 'admin',
-      });
-      res.status(200).json({token});
-    } else {
-      res.status(401).json({error: "Incorrect wachtwoord"});
-    }
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * Admin Token Validation
- */
-router.post('/validate', async (req, res, next) => {
-  try {
-    const { token } = req.body;
-
-    if (await verifyJwt(token)) {
-      res.status(200).json("Token is valide");
-    } else {
-      res.status(401).json({error: "Token is niet geldig"});
-    }
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * Gets the counts of questions, categories, quizzes and team images
- */
-router.get('/totals', async (req, res, next) => {
-  try {
-    const questions = await getQuestionsCount();
-    const quizzes = await getQuizzesCount();
-    const categories = await getCategoriesFromQuestions();
-    const images = await countImages('./static/images/teams');
-
-    const responseObj = {
-      questions: questions,
-      quizzes: quizzes,
-      categories: categories.length,
-      images: images,
-    }
-
-    res.status(200).json(responseObj);
-  } catch (err) {
-    next(err);
-  }
-});
+  getQuestionById,
+  getQuestionsByOptionalSearch,
+  getQuestionCountBySearch,
+  updateQuestionInformationById,
+  updateQuestionImageById,
+  getQuestionByQuestion,
+  createQuestion,
+  deleteQuestionById,
+  deleteAllQuestions
+} = require("../../queries/questionQueries");
+const {deleteQuestionImage, convertBase64ToImage, deleteFolder} = require("../../helpers/imageHelper");
+const {broadcastToAdmin} = require("../../socketserver");
+const router = require('express').Router();
 
 /**
  * Get one question by id
@@ -225,19 +168,6 @@ router.delete('/questions', async (req, res, next) => {
     res.status(204).json({
       message: "Alle vragen zijn verwijderd"
     });
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * Gets all the categories from the questions
- */
-router.get('/categories', async (req, res, next) => {
-  try {
-    const categories = await getCategoriesFromQuestions();
-
-    res.status(200).json(categories);
   } catch (err) {
     next(err);
   }
