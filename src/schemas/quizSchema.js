@@ -20,7 +20,8 @@ const quizSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false
-    }, date: {
+    },
+    date: {
         type: Date,
         default: Date.now
     }
