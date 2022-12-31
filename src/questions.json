@@ -1500,11 +1500,6 @@
     "category": "Eten en Drinken"
   },
   {
-    "question": "Wat maakt pestosaus groen?",
-    "answer": "Basilicum",
-    "category": "Eten en Drinken"
-  },
-  {
     "question": "Welke vrucht wordt traditioneel gegeten op bloedworst?",
     "answer": "Appel",
     "category": "Eten en Drinken"
@@ -2630,11 +2625,6 @@
     "category": "Geschiedenis"
   },
   {
-    "question": "Hoe noem je het overblijfsel van een religieus voorwerp?",
-    "answer": "Een relikwie",
-    "category": "Geschiedenis"
-  },
-  {
     "question": "Hoe heette de vader van Anne Frank?",
     "answer": "Otto",
     "category": "Geschiedenis"
@@ -3370,11 +3360,6 @@
     "category": "Wetenschap en Techniek"
   },
   {
-    "question": "In welk jaar is electronicabedrijf Apple (o.a. bekend van de Iphone) opgericht?",
-    "answer": "1976",
-    "category": "Wetenschap en Techniek"
-  },
-  {
     "question": "Welke codenaam heeft Android 2.3?",
     "answer": "Gingerbread",
     "category": "Wetenschap en Techniek"
@@ -3620,216 +3605,6 @@
     "category": "Wetenschap en Techniek"
   },
   {
-    "question": "Wat is de natuurkundige eenheid van druk?",
-    "answer": "Bar",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke boor is naar een insect vernoemd?",
-    "answer": "Vlinderboor",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke materiaal is magnesium?",
-    "answer": "Metaal",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Waar staat de afkorting HSS voor op een boortje?",
-    "answer": "High Speed Steel",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoeveel is de wortel van 25 in het kwadraat?",
-    "answer": "25",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoe noem je het gedeelde van een slot waar je de sleutel insteekt?",
-    "answer": "Cilinder",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke steen kan door het lichaam worden gevormd?",
-    "answer": "Niersteen",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Waar staat de afkorting EQ voor?",
-    "answer": "Emotioneel quotiënt",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat krijg je als je cement en grind met elkaar mengt?",
-    "answer": "Beton",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wie vond als eerst de telefoon uit?",
-    "answer": "Antionio Meucci",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoeveel tanden en kiezen heeft een volwassen persoon?",
-    "answer": "32",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welk metaal is als enige bij kamertemperatuur vloeibaar?",
-    "answer": "Kwik",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoe wordt een tweede keer volle maan in één maand genoemd?",
-    "answer": "Een blauwe maan",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke kleur is de middelste kleur van een regenboog?",
-    "answer": "Groen",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoeveel kilometer is de omtrek van de aarde?",
-    "answer": "40.000 km",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat zijn de eerste 3 priemgetallen?",
-    "answer": "2,3 en 5",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "De vijf planeten die het dichtst bij ons zijn?",
-    "answer": "Mercurius, Venus, Mars, Jupiter en Saturnus",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoeveel cc heeft de motorinhoud van een 2 liter motor?",
-    "answer": "Ongeveer 2000cc",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke lichtstraal heeft een tv afstandsbediening?",
-    "answer": "Infra Rood",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Waar staat de afkorting SMS voor?",
-    "answer": "Short Message Service",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoeveel kilobyte is 1 megabyte?",
-    "answer": "1024",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat is de gemiddelde snelheid van een groot passagiers vliegtuig?",
-    "answer": "1000km p/u",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Met welke snelheid knip je je vingers?",
-    "answer": "Ongeveer 45km p/u",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat is kleiner dan een molecuul?",
-    "answer": "Atoom",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat betekent de afkorting IR?",
-    "answer": "Infra rood",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Op hoeveel volt werkt een USB aansluiting?",
-    "answer": "5 Volt",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoe heette vroeger de koelende vloeistof in een vriezer?",
-    "answer": "Freon",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoe heet het metaal dat in de scheikunde aangeduid wordt met Al?",
-    "answer": "Aluminium",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat is de snelheid van geluid?",
-    "answer": "340m per seconde",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Met welk gas wordt een ballon opgeblazen die kan zweven?",
-    "answer": "Helium",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wie was de uitvinder van elektriciteit?",
-    "answer": "Thomas Edison",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat is de codenaam van Android 4.1?",
-    "answer": "Jelly Bean",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke smartphone was de eerste telefoon met een Dualcore-processor?",
-    "answer": "De LG Optimus 2x Speed",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Waarvoor staat de afkorting NFC?",
-    "answer": "Near Field Communication",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Waarvoor staat de I in de afkorting HDMI?",
-    "answer": "Interface",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Naar welk werelddeel is een van de manen van Jupiter vernoemd?",
-    "answer": "Europa",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "In welk jaar is electronicabedrijf Apple (o.a. bekend van de Iphone) opgericht?",
-    "answer": "1976",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke codenaam heeft Android 2.3?",
-    "answer": "Gingerbread",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Welke spelcomputer stond eerder bekend onder de naam Nintendo Revolution?",
-    "answer": "De Nintendo Wii",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "In welk jaar werd de allereerste sms verstuurd?",
-    "answer": "1992",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "In welk jaar kwam de eerste Blackberry op de markt?",
-    "answer": "1999",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Hoe wordt een periode van 1 miljard jaar genoemd?",
-    "answer": "Een Giga-annum",
-    "category": "Wetenschap en Techniek"
-  },
-  {
     "question": "Hoe lang duurt een professionele voetbalwedstrijd?",
     "answer": "90 minuten",
     "category": "Sport"
@@ -3932,11 +3707,6 @@
   {
     "question": "Hoe worden de stokken waarmee geslagen wordt bij golf genoemd?",
     "answer": "(golf)clubs",
-    "category": "Sport"
-  },
-  {
-    "question": "Welke sport staat centraal in de film Black Swan?",
-    "answer": "Ballet",
     "category": "Sport"
   },
   {
@@ -4213,16 +3983,6 @@
     "question": "Van welke 2 sporten is duatlon een combinatie?",
     "answer": "Wielrennen en hardlopen",
     "category": "Sport"
-  },
-  {
-    "question": "Wat is de tegenhanger van gelijkspanning?",
-    "answer": "Wisselspanning",
-    "category": "Wetenschap en Techniek"
-  },
-  {
-    "question": "Wat geeft een gloeilamp het meest af?",
-    "answer": "Warmte",
-    "category": "Wetenschap en Techniek"
   },
   {
     "question": "Welke Duitse stad heeft een luchthaven met als drieletterige code MUC",

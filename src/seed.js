@@ -23,8 +23,13 @@ const insertQuestions = async () => {
   const categories = await Category.find({});
   const categoryMap = {};
 
+  // Remove duplicate questions
+  const uniqueQuestions = questions.filter((q, i, arr) => {
+    return arr.findIndex(t => t.question === q.question) === i;
+  });
+
   categories.forEach(c => categoryMap[c.name] = c._id);
-  await Question.insertMany(questions.map(q => ({
+  await Question.insertMany(uniqueQuestions.map(q => ({
     question: q.question,
     answer: q.answer,
     category: categoryMap[q.category],
@@ -36,3 +41,26 @@ insertQuestions().then(() => {
   console.log("Finished");
   mongoose.disconnect();
 });
+
+
+
+// Used for filtering out duplicate questions from original questions.json
+
+// const getQuestions = async () => {
+//   const dbQuestions = await Question.find({}, {_id: 0, __v: 0, date: 0}).populate("category");
+//
+//   return dbQuestions.map(q => {
+//     return {
+//       question: q.question,
+//       answer: q.answer,
+//       category: q.category.name
+//     }
+//   });
+// }
+// getQuestions().then((questions) => {
+//   fs.writeFile("new_questions.json", JSON.stringify(questions), (err) => {
+//     if (err) throw err;
+//     console.log("Questions saved");
+//   });
+//   mongoose.disconnect();
+// });
