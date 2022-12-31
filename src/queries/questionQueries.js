@@ -1,12 +1,8 @@
 const Question = require('../models/question');
 const Quiz = require('../models/quiz');
 
-function getCategoriesFromQuestions() {
-  return Question.distinct('category');
-}
-
 async function getQuestionById(id) {
-  return Question.findById(id);
+  return Question.findById(id).populate('category');
 }
 
 async function getQuestionsByLobby(lobby) {
@@ -21,7 +17,7 @@ async function getQuestionsByLobby(lobby) {
     }, {
       // Find questions that are in one of the chosen categories
       category: {$in: roundCategories}
-    }]});
+    }]}).populate('category');
 
   // If all questions are already asked then return just all of them as a fallback
   if(questions.length === 0) {
@@ -45,7 +41,7 @@ async function getQuestionByQuestion(question) {
 }
 
 async function getQuestionsByOptionalSearch(search, perPage, page) {
-  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1});
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1}).populate('category');
 }
 
 async function getQuestionCountBySearch(search) {
@@ -89,7 +85,6 @@ async function getQuestionsCount() {
 }
 
 module.exports = {
-  getCategoriesFromQuestions,
   getQuestionsByLobby,
   addAskedQuestion,
   deleteAllQuestions,

@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const {signJwt, verifyJwt} = require("../../helpers/jwtHelper");
-const { getQuestionsCount, getCategoriesFromQuestions } = require("../../queries/questionQueries");
+const { getQuestionsCount } = require("../../queries/questionQueries");
 const {getQuizzesCount} = require("../../queries/quizQueries");
 const {countImages} = require("../../helpers/imageHelper");
+const {getCategories} = require("../../queries/categoryQueries");
+const {getTeamImages} = require("../../queries/teamQueries");
 
 /**
  * Admin Login
@@ -48,14 +50,16 @@ router.get('/totals', async (req, res, next) => {
   try {
     const questions = await getQuestionsCount();
     const quizzes = await getQuizzesCount();
-    const categories = await getCategoriesFromQuestions();
-    const images = await countImages('./static/images/teams');
+    const categories = await getCategories();
+    const images = await getTeamImages();
+    const placeholders = await countImages('teamplaceholders');
 
     const responseObj = {
       questions: questions,
       quizzes: quizzes,
       categories: categories.length,
-      images: images,
+      images: images.length,
+      placeholders: placeholders,
     }
 
     res.status(200).json(responseObj);

@@ -1,4 +1,4 @@
-const {createNewQuiz, findQuizByLobby, endQuiz} = require("../queries/quizQueries");
+const {createNewQuiz, endQuiz} = require("../queries/quizQueries");
 const {generateLobbyCode} = require("../helpers/lobbyHelper");
 const router = require('express').Router();
 const Quiz = require('../models/quiz');
@@ -6,11 +6,12 @@ const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExis
   checkIfUserAuthenticatedWithBearerToken
 } = require("./middleware");
 const {updateTeamAcceptedById, deleteTeam, updateTeamsAcceptedInLobby} = require("../queries/teamQueries");
-const {getWebsocketServer, broadcastToTeam, broadcastToTeams, broadcastToQuizmaster, broadcastToScoreboard} = require("../socketserver");
-const {getCategoriesFromQuestions, getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
+const {broadcastToTeam, broadcastToTeams, broadcastToScoreboard, broadcastToAdmin} = require("../socketserver");
+const {getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
 const {addNewRound, getAllRounds, closeAskedQuestion, updateGivenAnswer, finishRound} = require("../queries/roundQueries");
-const {calculatePoints, calculateAndSavePoints, getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
+const {calculateAndSavePoints, getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
 const {signJwt} = require("../helpers/jwtHelper");
+const {getCategories} = require("../queries/categoryQueries");
 
 /**
  * Create a new quiz
@@ -79,6 +80,7 @@ router.patch('/quizzes/:lobby/teams', async (req, res, next) => {
       broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, team._id.toString());
     });
     broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(teams);
   }
@@ -97,6 +99,7 @@ router.patch('/quizzes/:lobby/teams/:teamId', async (req, res, next) => {
     // Send websocket event somewhere here to notify the team that they have been accepted
     broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, req.params.teamId);
     broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(team);
   }
@@ -129,7 +132,7 @@ router.delete('/quizzes/:lobby/teams/:teamId', async (req, res, next) => {
  */
 router.get('/categories', async (req, res, next) => {
   try {
-    const categories = await getCategoriesFromQuestions();
+    const categories = await getCategories();
     res.status(200).json(categories);
   }
   catch (e) {

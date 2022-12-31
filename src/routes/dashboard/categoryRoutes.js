@@ -1,4 +1,4 @@
-const {getCategoriesFromQuestions} = require("../../queries/questionQueries");
+const {getCategories} = require("../../queries/categoryQueries");
 const router = require('express').Router();
 
 /**
@@ -6,7 +6,7 @@ const router = require('express').Router();
  */
 router.get('/categories', async (req, res, next) => {
   try {
-    const categories = await getCategoriesFromQuestions();
+    const categories = await getCategories();
 
     res.status(200).json(categories);
   } catch (err) {

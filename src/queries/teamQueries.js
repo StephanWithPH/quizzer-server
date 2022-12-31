@@ -30,10 +30,20 @@ function findTeamById(teamId) {
   return Team.findById(teamId);
 }
 
+function getTeamImages(limit, offset) {
+  return Team.find({ image: {$regex: 'teams'} }).limit((offset * limit)).sort({date: -1});
+}
+
+function getTeamImagesCount() {
+  return Team.countDocuments({ image:  {$regex: 'teams'} });
+}
+
 module.exports = {
   createNewTeam,
   updateTeamAcceptedById,
   updateTeamsAcceptedInLobby,
   deleteTeam,
-  findTeamById
+  findTeamById,
+  getTeamImages,
+  getTeamImagesCount
 }
