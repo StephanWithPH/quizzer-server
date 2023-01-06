@@ -1,16 +1,13 @@
 const {
   getQuestionById,
-  getQuestionsByOptionalSearch,
-  getQuestionCountBySearch,
   updateQuestionInformationById,
   updateQuestionImageById,
   getQuestionByQuestion,
   createQuestion,
   deleteQuestionById,
-  deleteAllQuestions
+  deleteAllQuestions, getFilteredQuestions
 } = require("../../queries/questionQueries");
 const {deleteQuestionImage, convertBase64ToImage, deleteFolder} = require("../../helpers/imageHelper");
-const {broadcastToAdmin} = require("../../socketserver");
 const router = require('express').Router();
 
 /**
@@ -38,12 +35,9 @@ router.get('/questions', async (req, res, next) => {
   try {
     const { search, page, perPage } = req.query;
 
-    const questions = await getQuestionsByOptionalSearch(search, perPage, page);
-    const total = await getQuestionCountBySearch(search);
-    res.status(200).json({
-      questions,
-      total: total.length,
-    });
+    const body = await getFilteredQuestions(page, perPage, search);
+
+    res.status(200).json(body);
 
   } catch (err) {
     next(err);
@@ -59,6 +53,7 @@ router.put('/questions/:id', async (req, res, next) => {
     const { question, answer, category } = req.body;
 
     const updatedQuestion = await updateQuestionInformationById(id, question, answer, category);
+    console.log(updatedQuestion);
 
     if (updatedQuestion) {
       res.status(200).json(updatedQuestion);
@@ -66,6 +61,7 @@ router.put('/questions/:id', async (req, res, next) => {
       res.status(404).json({error: "Vraag niet gevonden"});
     }
   } catch (err) {
+    console.log(err);
     next(err);
   }
 });
@@ -112,7 +108,8 @@ router.post('/questions', async (req, res, next) => {
 
     // Check if the question doesn't already exist
     const questionExists = await getQuestionByQuestion(question);
-    if (questionExists.length > 0) {
+
+    if (questionExists) {
       res.status(409).json({error: "Deze vraag bestaat al"});
       return;
     }
@@ -122,9 +119,8 @@ router.post('/questions', async (req, res, next) => {
     if (base64Image) {
       imagePath = await convertBase64ToImage(base64Image, "questions");
     }
-
     const newQuestion = await createQuestion(question, answer, category, imagePath);
-    broadcastToAdmin("QUESTION_CREATED");
+
     res.status(200).json(newQuestion);
   } catch (err) {
     next(err);
@@ -146,12 +142,10 @@ router.delete('/questions/:id', async (req, res, next) => {
     }
     await deleteQuestionById(id);
 
-    broadcastToAdmin("QUESTION_DELETED");
     res.status(204).json({
       message: "Vraag verwijderd",
     });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 });
@@ -164,7 +158,6 @@ router.delete('/questions', async (req, res, next) => {
     await deleteAllQuestions();
     await deleteFolder('questions');
 
-    broadcastToAdmin("QUESTIONS_DELETED");
     res.status(204).json({
       message: "Alle vragen zijn verwijderd"
     });

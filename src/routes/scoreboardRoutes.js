@@ -76,7 +76,6 @@ router.get('/quizzes/:lobby/teams', async (req, res, next) => {
 router.get('/quizzes/:lobby/rounds', async (req, res, next) => {
   try {
     const rounds = await getAllRounds(req.session.lobby);
-    console.log(rounds.rounds[0].askedQuestions);
     res.status(200).json(rounds.rounds);
   } catch (e) {
     next(e);

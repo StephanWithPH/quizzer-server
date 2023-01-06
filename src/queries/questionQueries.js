@@ -1,8 +1,14 @@
 const Question = require('../models/question');
+const Category = require('../models/category');
 const Quiz = require('../models/quiz');
 
 async function getQuestionById(id) {
-  return Question.findById(id).populate('category');
+  const categories = await Category.find();
+  const questions = categories.map(category => category.questions.map((question) => ({
+    ...question,
+    category: category.name
+  }))).flat();
+  return questions.find(question => question._id.toString() === id);
 }
 
 async function getQuestionsByLobby(lobby) {
@@ -11,16 +17,18 @@ async function getQuestionsByLobby(lobby) {
   const roundCategories = round.chosenCategories;
   const allAskedQuestions = quiz.rounds.map(round => round.askedQuestions);
   const mergedAskedQuestions = [].concat.apply([], allAskedQuestions);
-  let questions = await Question.find({$and: [{
+  let questions = await Question.find({
+    $and: [{
       // Find questions that haven't been asked yet
       _id: {$nin: mergedAskedQuestions.map(askedQuestion => askedQuestion.question._id)}
     }, {
       // Find questions that are in one of the chosen categories
       category: {$in: roundCategories}
-    }]}).populate('category');
+    }]
+  }).populate('category');
 
   // If all questions are already asked then return just all of them as a fallback
-  if(questions.length === 0) {
+  if (questions.length === 0) {
     questions = await Question.find({category: {$in: roundCategories}});
   }
 
@@ -28,33 +36,63 @@ async function getQuestionsByLobby(lobby) {
 }
 
 async function createQuestion(question, answer, category, image) {
-  return Question.create({
-    question: question,
-    answer: answer,
-    category: category,
-    image: image
-  });
+  return Category.findOneAndUpdate({name: category}, {
+    $push: {
+      questions: {
+        question: question,
+        answer: answer,
+        image: image,
+      }
+    }
+  }, {new: true});
 }
 
 async function getQuestionByQuestion(question) {
-  return Question.find({question: question});
+  const categories = await Category.find();
+  const questions = categories.map(category => category.questions.map((question) => ({
+    ...question,
+    category: category.name
+  }))).flat();
+  return questions.find(q => q.question.toLowerCase() === question.toLowerCase());
 }
 
-async function getQuestionsByOptionalSearch(search, perPage, page) {
-  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1}).populate('category');
-}
-
-async function getQuestionCountBySearch(search) {
-  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).sort({date: -1});
+async function getQuestionsCount() {
+  let count = 0;
+  const categories = await Category.find({});
+  categories.forEach(category => count += category.questions.length);
+  return count;
 }
 
 async function updateQuestionInformationById(id, question, answer, category) {
-  return Question.findOneAndUpdate({_id: id}, {
-    question: question,
-    answer: answer,
-    category: category,
-    date: Date.now(),
-  }, {new: true});
+  // If the category is the same then just update the embedded question and answer in the category
+  const oldQuestion = await getQuestionById(id);
+  if (oldQuestion.category === category) {
+    // Update the question and answer in the category
+    return Category.findOneAndUpdate({name: category, 'questions._id': id}, {
+      $set: {
+        'questions.$.question': question,
+        'questions.$.answer': answer,
+        'questions.$.date': Date.now(),
+      },
+    }, {new: true});
+  } else {
+    // If the category is different, remove the question from the old category and add it to the new one
+    await Category.findOneAndUpdate({name: oldQuestion.category}, {
+      $pull: {
+        questions: {_id: id}
+      }
+    });
+    await Category.findOneAndUpdate({name: category}, {
+      $push: {
+        questions: {
+          question: question,
+          answer: answer,
+          image: oldQuestion.image,
+          date: Date.now,
+        }
+      }
+    }, {new: true});
+  }
 }
 
 async function updateQuestionImageById(id, image) {
@@ -65,7 +103,16 @@ async function updateQuestionImageById(id, image) {
 }
 
 async function deleteQuestionById(id) {
-  return Question.deleteOne({_id: id});
+  const categories = await Category.find();
+  const questions = categories.map(category => category.questions.map((question) => ({
+    ...question,
+    category: category.name
+  }))).flat();
+  const question = questions.find(question => question._id.toString() === id);
+  const category = await Category.findOne({name: question.category});
+  // Filter out the question that needs to be deleted
+  category.questions = category.questions.filter(question => question._id.toString() !== id);
+  return category.save();
 }
 
 async function addAskedQuestion(lobby, roundId, questionId) {
@@ -77,11 +124,30 @@ async function addAskedQuestion(lobby, roundId, questionId) {
 }
 
 async function deleteAllQuestions() {
-  return Question.deleteMany({});
+  return Category.updateMany({}, {$set: {questions: []}}, {new: true});
 }
 
-async function getQuestionsCount() {
-  return Question.countDocuments();
+async function getFilteredQuestions(page = 1, perPage = 10, search) {
+  const categories = await Category.find();
+
+  // Add the category to the question object and select the given per page amount of questions, and sort them by date
+  let questions = categories.map(category => category.questions.map((question) => ({
+    ...question,
+    category: category.name
+  })))
+    .flat()
+    .sort((a, b) => b.date - a.date);
+
+  if (search) {
+    // Filter out the questions that don't match the search query
+    questions = questions.filter(question => question.question.toLowerCase().includes(search.toLowerCase()));
+  }
+
+
+  return {
+    questions: questions.slice(perPage * (page - 1), perPage * page),
+    total: questions.length
+  }
 }
 
 module.exports = {
@@ -91,10 +157,9 @@ module.exports = {
   getQuestionsCount,
   createQuestion,
   getQuestionByQuestion,
-  getQuestionsByOptionalSearch,
   deleteQuestionById,
-  getQuestionCountBySearch,
   getQuestionById,
   updateQuestionInformationById,
-  updateQuestionImageById
+  updateQuestionImageById,
+  getFilteredQuestions
 }
