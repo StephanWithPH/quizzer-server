@@ -173,10 +173,12 @@ const deleteImageFromFolder = async (targetFolder, file) => {
       // Find the file by name
       return fs.unlink(path + '/' + file, err => {
         if (err) {
+          console.log("err", err);
           const error = new Error("Fout met verwijderen van de afbeelding");
           error.status = 500;
           return reject(error);
         }
+        console.log("File deleted");
         return resolve("Afbeelding verwijderd");
       });
     }

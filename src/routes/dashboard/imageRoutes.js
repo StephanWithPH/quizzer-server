@@ -43,6 +43,7 @@ router.delete('/images/placeholder/:name', async (req, res, next) => {
   try {
     const { name } = req.params;
     const file = await findImageByName('teamplaceholders', name);
+    console.log("file", file);
     await deleteImageFromFolder('teamplaceholders', file);
     res.status(200).json({
       message: 'Image deleted',
