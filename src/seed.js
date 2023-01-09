@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const questions = require("./questions.json");
+const Question = require("./models/question");
 const Category = require("./models/category");
 require('dotenv').config({
   path: '../.env'
@@ -10,27 +11,25 @@ mongoose.connect(process.env.DATABASE_URL);
 
 const insertQuestions = async () => {
   await Category.deleteMany({name: {$exists: true}});
-  console.log("Categories & questions deleted");
+  console.log("Categories deleted");
+  await Question.deleteMany({question: {$exists: true}})
+  console.log("Old questions deleted");
   // Get distinct categories
   const insertCategories = [...new Set(questions.map(q => q.category))];
-  console.log("Categories to insert: ", insertCategories);
+  await Category.insertMany(insertCategories.map(c => ({name: c})))
+  console.log("Categories created");
 
-  // Remove duplicate questions
-  const uniqueQuestions = questions.filter((q, i, arr) => {
-    return arr.findIndex(t => t.question === q.question) === i;
-  });
-  console.log("Questions to insert: ", uniqueQuestions.length);
+  // Insert questions with category ids
+  const categories = await Category.find({});
+  const categoryMap = {};
 
-  for (const category of insertCategories) {
-    const categoryQuestions = uniqueQuestions.filter(q => q.category === category);
-    const newCategory = new Category({
-      name: category,
-      questions: categoryQuestions
-    });
-    await newCategory.save();
-  }
-  console.log("Categories & questions inserted");
-
+  categories.forEach(c => categoryMap[c.name] = c._id);
+  await Question.insertMany(questions.map(q => ({
+    question: q.question,
+    answer: q.answer,
+    category: categoryMap[q.category],
+  })));
+  console.log("Questions created with linked categories");
 }
 
 insertQuestions().then(() => {
