@@ -10,7 +10,7 @@ const {
   deleteAllQuestions
 } = require("../../queries/questionQueries");
 const {deleteQuestionImage, convertBase64ToImage, deleteFolder} = require("../../helpers/imageHelper");
-const {broadcastToAdmin} = require("../../socketserver");
+const {getCategoryByName} = require("../../queries/categoryQueries");
 const router = require('express').Router();
 
 /**
@@ -40,6 +40,7 @@ router.get('/questions', async (req, res, next) => {
 
     const questions = await getQuestionsByOptionalSearch(search, perPage, page);
     const total = await getQuestionCountBySearch(search);
+
     res.status(200).json({
       questions,
       total: total.length,
@@ -58,7 +59,9 @@ router.put('/questions/:id', async (req, res, next) => {
     const { id } = req.params;
     const { question, answer, category } = req.body;
 
-    const updatedQuestion = await updateQuestionInformationById(id, question, answer, category);
+    const selectedCategory = await getCategoryByName(category);
+
+    const updatedQuestion = await updateQuestionInformationById(id, question, answer, selectedCategory._id);
 
     if (updatedQuestion) {
       res.status(200).json(updatedQuestion);
@@ -123,8 +126,9 @@ router.post('/questions', async (req, res, next) => {
       imagePath = await convertBase64ToImage(base64Image, "questions");
     }
 
-    const newQuestion = await createQuestion(question, answer, category, imagePath);
-    broadcastToAdmin("QUESTION_CREATED");
+    const selectedCategory = await getCategoryByName(category);
+
+    const newQuestion = await createQuestion(question, answer, selectedCategory._id, imagePath);
     res.status(200).json(newQuestion);
   } catch (err) {
     next(err);
@@ -146,7 +150,6 @@ router.delete('/questions/:id', async (req, res, next) => {
     }
     await deleteQuestionById(id);
 
-    broadcastToAdmin("QUESTION_DELETED");
     res.status(204).json({
       message: "Vraag verwijderd",
     });
@@ -164,7 +167,6 @@ router.delete('/questions', async (req, res, next) => {
     await deleteAllQuestions();
     await deleteFolder('questions');
 
-    broadcastToAdmin("QUESTIONS_DELETED");
     res.status(204).json({
       message: "Alle vragen zijn verwijderd"
     });
