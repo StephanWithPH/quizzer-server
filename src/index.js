@@ -71,9 +71,7 @@ websocketServer.on('connection', (socket, req) => {
   console.log('Websocket connected.');
 
   socket.on('close', () => {
-    if (socket.session.role === 'admin') {
-      broadcastToAdmin('SOCKET_DISCONNECTED');
-    }
+    socket.send(JSON.stringify({type: 'SOCKET_DISCONNECTED'}));
   });
 
   socket.on('message', async (msg) => {
@@ -88,9 +86,7 @@ websocketServer.on('connection', (socket, req) => {
         // Get user that has at least this token in its tokens array
         socket.session = {...payload};
         console.log('Authenticated.');
-        if (socket.session.role === 'admin') {
-          broadcastToAdmin("SOCKET_CONNECTED");
-        }
+        socket.send(JSON.stringify({type: 'SOCKET_CONNECTED'}));
       }
     }
     catch (e) {
