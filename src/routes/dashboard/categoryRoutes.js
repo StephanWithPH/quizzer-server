@@ -1,4 +1,6 @@
-const {getCategories, getFilteredCategories, createCategory, deleteCategory} = require("../../queries/categoryQueries");
+const {getCategories, getFilteredCategories, createCategory, deleteCategory, getCategoryById, getCategoryByName,
+  updateCategory
+} = require("../../queries/categoryQueries");
 const router = require('express').Router();
 
 
@@ -15,6 +17,41 @@ router.get('/categories', async (req, res, next) => {
       const categories = await getCategories();
       return res.status(200).json(categories);
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Gets a category by id
+ */
+router.get('/categories/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const category = await getCategoryById(id);
+    return res.status(200).json(category);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Updates a category
+ */
+router.put('/categories/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    // Check if the name is not used yet
+    const categoryExists = await getCategoryByName(name);
+    if (categoryExists) {
+      return res.status(400).json({ message: 'Category already exists' });
+    }
+
+    const category = await updateCategory(id, name);
+    return res.status(200).json(category);
   } catch (err) {
     next(err);
   }

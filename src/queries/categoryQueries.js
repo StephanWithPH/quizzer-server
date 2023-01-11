@@ -23,8 +23,16 @@ async function getFilteredCategories(page = 1, perPage = 10, search = '') {
   }));
 }
 
+async function getCategoryById(id) {
+  return Category.findById(id);
+}
+
 async function createCategory(name) {
   return Category.create({ name });
+}
+
+async function updateCategory(id, name) {
+  return Category.findByIdAndUpdate(id,  { name }, { new: true });
 }
 
 async function deleteCategory(id) {
@@ -40,7 +48,9 @@ async function deleteCategory(id) {
 module.exports = {
   getCategories,
   getCategoryByName,
+  getCategoryById,
   createCategory,
+  updateCategory,
   getFilteredCategories,
   deleteCategory,
 }
