@@ -8,8 +8,8 @@ const cors = require('cors');               // needed for using webpack-devserve
 const bodyParser = require('body-parser')
 const http = require('http');
 const WebSocket = require('ws');
-const {setWebsocketServer, broadcastToAdmin} = require("./socketserver");
-const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
+const {setWebsocketServer} = require("./socketserver");
+const {makeConnection} = require("./helpers/mongooseHelper");
 const Store = require("express-session/session/store");
 const jose = require("jose");
 const {staticFolder} = require("./constants");
@@ -45,6 +45,7 @@ app.use('/api/v1/manage', require('./routes/dashboard/adminRoutes'));
 app.use('/api/v1/manage', require('./routes/dashboard/questionRoutes'));
 app.use('/api/v1/manage', require('./routes/dashboard/categoryRoutes'));
 app.use('/api/v1/manage', require('./routes/dashboard/imageRoutes'));
+app.use('/api/v1/manage', require('./routes/dashboard/quizRoutes'));
 
 app.use((err, req, res, next) => {
   res.status(err.status ? err.status : 500).json({

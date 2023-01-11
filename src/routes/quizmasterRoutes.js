@@ -38,6 +38,8 @@ router.post('/quizzes', async (req, res, next) => {
         role: 'qm',
         lobby: generatedLobbyCode
       });
+
+      await broadcastToAdmin('NEW_QUIZ');
       res.status(201).json(resQuiz);
     });
   }
@@ -79,8 +81,8 @@ router.patch('/quizzes/:lobby/teams', async (req, res, next) => {
     teams.forEach(team => {
       broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, team._id.toString());
     });
-    broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
-    broadcastToAdmin("NEW_TEAM");
+    await broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(teams);
   }
@@ -97,9 +99,9 @@ router.patch('/quizzes/:lobby/teams/:teamId', async (req, res, next) => {
     const team = await updateTeamAcceptedById(req.params.teamId, req.body.accepted);
 
     // Send websocket event somewhere here to notify the team that they have been accepted
-    broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, req.params.teamId);
-    broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
-    broadcastToAdmin("NEW_TEAM");
+    await broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, req.params.teamId);
+    await broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(team);
   }
@@ -147,6 +149,8 @@ router.post('/quizzes/:lobby/rounds/', async (req, res, next) => {
   try {
     const newRound = await addNewRound(req.session.lobby, req.body.chosenCategories);
     await broadcastToScoreboard("NEW_ROUND", req.session.lobby);
+    await broadcastToAdmin("NEW_ROUND");
+
     res.status(200).json(newRound);
   }
   catch (e) {
@@ -248,7 +252,9 @@ router.patch(`/quizzes/:lobby/rounds/:roundId`, async (req, res, next) => {
     await calculateAndSavePoints(correctAnswersPerTeam);
     await finishRound(req.session.lobby, req.params.roundId);
     await broadcastToTeams("ROUND_FINISHED", req.session.lobby);
-    await broadcastToScoreboard("ROUND_FINISHED", req.session.lobby)
+    await broadcastToScoreboard("ROUND_FINISHED", req.session.lobby);
+    await broadcastToAdmin("ROUND_FINISHED");
+
     res.status(200).json({
       message: "Round finished"
     });
@@ -265,6 +271,8 @@ router.patch(`/quizzes/:lobby`, async (req, res, next) => {
     await endQuiz(req.session.lobby);
     await broadcastToTeams("QUIZ_ENDED", req.session.lobby);
     await broadcastToScoreboard("QUIZ_ENDED", req.session.lobby);
+    await broadcastToAdmin("QUIZ_ENDED");
+
     res.status(200).json({
       message: "Quiz ended"
     });
