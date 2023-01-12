@@ -102,6 +102,16 @@ const countImagesSync = (targetFolder) => {
   return 0;
 }
 
+const findImageByRandomNumberSync = (targetFolder, number) => {
+  const path = staticFolder + "/images/" + targetFolder;
+
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path);
+    return files.find((file) => file.split('.')[0] === number.toString());
+  }
+  return undefined;
+}
+
 const getImagesFromFolder = async (targetFolder) => {
   const path = staticFolder + "/images/" + targetFolder;
 
@@ -190,6 +200,7 @@ const deleteImageFromFolder = async (targetFolder, file) => {
     convertBase64ToImage,
     countImages,
     findImageByName,
+    findImageByRandomNumberSync,
     countImagesSync,
     getNewPlaceholderNumber,
     deleteQuestionImage,
