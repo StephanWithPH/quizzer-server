@@ -1,4 +1,4 @@
-const {createNewQuiz, findQuizByLobby, endQuiz} = require("../queries/quizQueries");
+const {createNewQuiz, endQuiz} = require("../queries/quizQueries");
 const {generateLobbyCode} = require("../helpers/lobbyHelper");
 const router = require('express').Router();
 const Quiz = require('../models/quiz');
@@ -6,11 +6,12 @@ const {createRoleMiddleware, createFindQuizByLobbyCodeMiddleware, createQuizExis
   checkIfUserAuthenticatedWithBearerToken
 } = require("./middleware");
 const {updateTeamAcceptedById, deleteTeam, updateTeamsAcceptedInLobby} = require("../queries/teamQueries");
-const {getWebsocketServer, broadcastToTeam, broadcastToTeams, broadcastToQuizmaster, broadcastToScoreboard} = require("../socketserver");
-const {getCategoriesFromQuestions, getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
+const {broadcastToTeam, broadcastToTeams, broadcastToScoreboard, broadcastToAdmin} = require("../socketserver");
+const {getQuestionsByLobby, addAskedQuestion} = require("../queries/questionQueries");
 const {addNewRound, getAllRounds, closeAskedQuestion, updateGivenAnswer, finishRound} = require("../queries/roundQueries");
-const {calculatePoints, calculateAndSavePoints, getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
+const {calculateAndSavePoints, getCorrectAnswersPerTeam} = require("../helpers/pointsHelper");
 const {signJwt} = require("../helpers/jwtHelper");
+const {getCategories} = require("../queries/categoryQueries");
 
 /**
  * Create a new quiz
@@ -37,6 +38,8 @@ router.post('/quizzes', async (req, res, next) => {
         role: 'qm',
         lobby: generatedLobbyCode
       });
+
+      await broadcastToAdmin('NEW_QUIZ');
       res.status(201).json(resQuiz);
     });
   }
@@ -78,7 +81,8 @@ router.patch('/quizzes/:lobby/teams', async (req, res, next) => {
     teams.forEach(team => {
       broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, team._id.toString());
     });
-    broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(teams);
   }
@@ -95,8 +99,9 @@ router.patch('/quizzes/:lobby/teams/:teamId', async (req, res, next) => {
     const team = await updateTeamAcceptedById(req.params.teamId, req.body.accepted);
 
     // Send websocket event somewhere here to notify the team that they have been accepted
-    broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, req.params.teamId);
-    broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToTeam("TEAM_ACCEPTED", req.session.lobby, req.params.teamId);
+    await broadcastToScoreboard('TEAM_ACCEPTED', req.session.lobby);
+    await broadcastToAdmin("NEW_TEAM");
 
     res.status(200).json(team);
   }
@@ -129,7 +134,7 @@ router.delete('/quizzes/:lobby/teams/:teamId', async (req, res, next) => {
  */
 router.get('/categories', async (req, res, next) => {
   try {
-    const categories = await getCategoriesFromQuestions();
+    const categories = await getCategories();
     res.status(200).json(categories);
   }
   catch (e) {
@@ -144,6 +149,8 @@ router.post('/quizzes/:lobby/rounds/', async (req, res, next) => {
   try {
     const newRound = await addNewRound(req.session.lobby, req.body.chosenCategories);
     await broadcastToScoreboard("NEW_ROUND", req.session.lobby);
+    await broadcastToAdmin("NEW_ROUND");
+
     res.status(200).json(newRound);
   }
   catch (e) {
@@ -187,6 +194,7 @@ router.post('/quizzes/:lobby/rounds/:roundId/askedquestions', async (req, res, n
     // Send websocket event somewhere here to notify the teams that a new question has been asked
     await broadcastToTeams("NEW_QUESTION", req.session.lobby);
     await broadcastToScoreboard("NEW_QUESTION", req.session.lobby);
+    await broadcastToAdmin("NEW_QUESTION");
 
     res.status(201).json({
       message: "Question added to round"
@@ -245,7 +253,9 @@ router.patch(`/quizzes/:lobby/rounds/:roundId`, async (req, res, next) => {
     await calculateAndSavePoints(correctAnswersPerTeam);
     await finishRound(req.session.lobby, req.params.roundId);
     await broadcastToTeams("ROUND_FINISHED", req.session.lobby);
-    await broadcastToScoreboard("ROUND_FINISHED", req.session.lobby)
+    await broadcastToScoreboard("ROUND_FINISHED", req.session.lobby);
+    await broadcastToAdmin("ROUND_FINISHED");
+
     res.status(200).json({
       message: "Round finished"
     });
@@ -262,6 +272,8 @@ router.patch(`/quizzes/:lobby`, async (req, res, next) => {
     await endQuiz(req.session.lobby);
     await broadcastToTeams("QUIZ_ENDED", req.session.lobby);
     await broadcastToScoreboard("QUIZ_ENDED", req.session.lobby);
+    await broadcastToAdmin("QUIZ_ENDED");
+
     res.status(200).json({
       message: "Quiz ended"
     });

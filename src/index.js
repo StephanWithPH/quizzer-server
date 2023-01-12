@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 const http = require('http');
 const WebSocket = require('ws');
 const {setWebsocketServer} = require("./socketserver");
-const {makeConnection, getMongoose} = require("./helpers/mongooseHelper");
+const {makeConnection} = require("./helpers/mongooseHelper");
 const Store = require("express-session/session/store");
 const jose = require("jose");
 const {staticFolder} = require("./constants");
@@ -41,6 +41,12 @@ app.use('/api/v1/quizmaster', require('./routes/quizmasterRoutes'));
 app.use('/api/v1/team', require('./routes/teamRoutes'));
 app.use('/api/v1/scoreboard', require('./routes/scoreboardRoutes'));
 
+app.use('/api/v1/manage', require('./routes/dashboard/adminRoutes'));
+app.use('/api/v1/manage', require('./routes/dashboard/questionRoutes'));
+app.use('/api/v1/manage', require('./routes/dashboard/categoryRoutes'));
+app.use('/api/v1/manage', require('./routes/dashboard/imageRoutes'));
+app.use('/api/v1/manage', require('./routes/dashboard/quizRoutes'));
+
 app.use((err, req, res, next) => {
   res.status(err.status ? err.status : 500).json({
     error: err.message ? err.message : 'Something went wrong',
@@ -65,6 +71,10 @@ httpServer.on('upgrade', (req, networkSocket, head) => {
 websocketServer.on('connection', (socket, req) => {
   console.log('Websocket connected.');
 
+  socket.on('close', () => {
+    socket.send(JSON.stringify({type: 'SOCKET_DISCONNECTED'}));
+  });
+
   socket.on('message', async (msg) => {
     try {
       let jsonMsg = JSON.parse(msg);
@@ -77,6 +87,7 @@ websocketServer.on('connection', (socket, req) => {
         // Get user that has at least this token in its tokens array
         socket.session = {...payload};
         console.log('Authenticated.');
+        socket.send(JSON.stringify({type: 'SOCKET_CONNECTED'}));
       }
     }
     catch (e) {

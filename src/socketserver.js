@@ -47,11 +47,20 @@ function broadcastToScoreboard(event, lobby) {
   });
 }
 
+function broadcastToAdmin(event) {
+  getWebsocketServer().clients.forEach(client => {
+    if (client.session.role === "admin") {
+      client.send(JSON.stringify({type: event}));
+    }
+  });
+}
+
 module.exports = {
   setWebsocketServer,
   getWebsocketServer,
   broadcastToTeams,
   broadcastToTeam,
   broadcastToQuizmaster,
-  broadcastToScoreboard
+  broadcastToScoreboard,
+  broadcastToAdmin
 }

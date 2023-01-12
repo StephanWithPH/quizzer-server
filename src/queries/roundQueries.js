@@ -13,7 +13,10 @@ async function addNewRound(lobby, chosenCategories) {
 }
 
 function getAllRounds(lobby) {
-  return Quiz.findOne({lobby: lobby}).populate('rounds.askedQuestions.question').populate('rounds.askedQuestions.givenAnswers.team').select('rounds');
+  return Quiz.findOne({lobby: lobby})
+    .populate({path: 'rounds.askedQuestions.question', populate: {path: 'category'}})
+    .populate('rounds.askedQuestions.givenAnswers.team')
+    .select('rounds');
 }
 
 function getAllRoundsWithoutAnswers(lobby) {

@@ -1,8 +1,8 @@
 const Question = require('../models/question');
 const Quiz = require('../models/quiz');
 
-function getCategoriesFromQuestions() {
-  return Question.distinct('category');
+async function getQuestionById(id) {
+  return Question.findById(id).populate('category');
 }
 
 async function getQuestionsByLobby(lobby) {
@@ -17,7 +17,7 @@ async function getQuestionsByLobby(lobby) {
     }, {
       // Find questions that are in one of the chosen categories
       category: {$in: roundCategories}
-    }]});
+    }]}).populate('category');
 
   // If all questions are already asked then return just all of them as a fallback
   if(questions.length === 0) {
@@ -25,6 +25,47 @@ async function getQuestionsByLobby(lobby) {
   }
 
   return questions;
+}
+
+async function createQuestion(question, answer, category, image) {
+  return Question.create({
+    question: question,
+    answer: answer,
+    category: category,
+    image: image
+  });
+}
+
+async function getQuestionByQuestion(question) {
+  return Question.find({question: question});
+}
+
+async function getQuestionsByOptionalSearch(search, perPage, page) {
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1}).populate('category');
+}
+
+async function getQuestionCountBySearch(search) {
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).sort({date: -1});
+}
+
+async function updateQuestionInformationById(id, question, answer, category) {
+  return Question.findOneAndUpdate({_id: id}, {
+    question: question,
+    answer: answer,
+    category: category,
+    date: Date.now(),
+  }, {new: true});
+}
+
+async function updateQuestionImageById(id, image) {
+  return Question.findOneAndUpdate({_id: id}, {
+    image: image,
+    date: Date.now(),
+  }, {new: true});
+}
+
+async function deleteQuestionById(id) {
+  return Question.deleteOne({_id: id});
 }
 
 async function addAskedQuestion(lobby, roundId, questionId) {
@@ -35,8 +76,25 @@ async function addAskedQuestion(lobby, roundId, questionId) {
   return quiz.save();
 }
 
+async function deleteAllQuestions() {
+  return Question.deleteMany({});
+}
+
+async function getQuestionsCount() {
+  return Question.countDocuments();
+}
+
 module.exports = {
-  getCategoriesFromQuestions,
   getQuestionsByLobby,
-  addAskedQuestion
+  addAskedQuestion,
+  deleteAllQuestions,
+  getQuestionsCount,
+  createQuestion,
+  getQuestionByQuestion,
+  getQuestionsByOptionalSearch,
+  deleteQuestionById,
+  getQuestionCountBySearch,
+  getQuestionById,
+  updateQuestionInformationById,
+  updateQuestionImageById
 }

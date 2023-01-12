@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const {countImagesSync, findImageByRandomNumberSync} = require("../helpers/imageHelper");
 
 const teamSchema = new mongoose.Schema({
     name: {
@@ -19,13 +20,22 @@ const teamSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: () => {
-            if(process.env.RANDOM_TEAM_IMAGES) {
-                let amountOfImages = 17;
+            if (process.env.RANDOM_TEAM_IMAGES) {
+                const amountOfImages = countImagesSync('teamplaceholders');
                 const randomNumber = Math.floor(Math.random() * amountOfImages) + 1;
-                return `/static/images/teamplaceholders/${randomNumber}.jpg`
+                const image = findImageByRandomNumberSync('teamplaceholders', randomNumber);
+
+                if (image) {
+                    return `/static/images/teamplaceholders/${image}`;
+                }
+                return undefined;
             }
             return undefined;
         }
+    },
+    date: {
+      type: Date,
+      default: Date.now
     }
 });
 
