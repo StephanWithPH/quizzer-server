@@ -12,7 +12,11 @@ router.get('/categories', async (req, res, next) => {
     const { page, perPage, search } = req.query;
     if (page && perPage) {
       const categories = await getFilteredCategories(page, perPage, search);
-      return res.status(200).json(categories);
+      const total = await getCategories();
+      return res.status(200).json({
+        categories,
+        total: total.length
+      });
     } else {
       const categories = await getCategories();
       return res.status(200).json(categories);
