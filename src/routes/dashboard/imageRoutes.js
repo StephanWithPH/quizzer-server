@@ -26,10 +26,17 @@ router.get('/images', async (req, res, next) => {
  */
 router.get('/images/placeholder', async (req, res, next) => {
   try {
+    const { limit, offset } = req.query;
+
     const placeholders = await getImagesFromFolder('teamplaceholders');
+    const total = placeholders.length;
+
+    const filteredPlaceholders = placeholders.slice(offset - 1, offset * limit);
+
+
     res.status(200).json({
-      placeholders,
-      total: placeholders.length,
+      placeholders: filteredPlaceholders,
+      total,
     });
   } catch (err) {
     next(err);
