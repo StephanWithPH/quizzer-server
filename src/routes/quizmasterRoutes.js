@@ -194,6 +194,7 @@ router.post('/quizzes/:lobby/rounds/:roundId/askedquestions', async (req, res, n
     // Send websocket event somewhere here to notify the teams that a new question has been asked
     await broadcastToTeams("NEW_QUESTION", req.session.lobby);
     await broadcastToScoreboard("NEW_QUESTION", req.session.lobby);
+    await broadcastToAdmin("NEW_QUESTION");
 
     res.status(201).json({
       message: "Question added to round"
