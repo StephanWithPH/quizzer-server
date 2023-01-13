@@ -31,7 +31,7 @@ router.get('/images/placeholder', async (req, res, next) => {
     const placeholders = await getImagesFromFolder('teamplaceholders');
     const total = placeholders.length;
 
-    const filteredPlaceholders = placeholders.slice(offset - 1, offset * limit);
+    const filteredPlaceholders = placeholders.slice(0, limit * offset);
 
 
     res.status(200).json({
