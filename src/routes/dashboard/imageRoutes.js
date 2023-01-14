@@ -1,5 +1,6 @@
 const {getTeamImages, getTeamImagesCount} = require("../../queries/teamQueries");
 const {getImagesFromFolder, deleteImageFromFolder, findImageByName, getNewPlaceholderNumber, convertBase64ToImage} = require("../../helpers/imageHelper");
+const {createImageTypeMiddleware} = require("../middleware");
 const router = require('express').Router();
 
 /**
@@ -63,7 +64,7 @@ router.delete('/images/placeholder/:name', async (req, res, next) => {
 /**
  * Create a new placeholder image
  */
-router.post('/images/placeholder', async (req, res, next) => {
+router.post('/images/placeholder', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const { base64Image } = req.body;
 
