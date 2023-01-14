@@ -16,10 +16,6 @@ const questionSchema = new mongoose.Schema({
   image: {
     type: String, required: false
   },
-  date: {
-    type: Date,
-    default: Date.now
-  }
-});
+}, { timestamps: true });
 
 module.exports = questionSchema;

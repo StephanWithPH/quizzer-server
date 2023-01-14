@@ -10,11 +10,11 @@ function createNewQuiz(lobby) {
 }
 
 function getFilteredQuizzes(page, perPage, search) {
-  return Quiz.find(search ? {lobby: {$regex: search, $options: 'i'}}: {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1}).populate('teams').populate('rounds.askedQuestions.question').populate('rounds.askedQuestions.givenAnswers.team');
+  return Quiz.find(search ? {lobby: {$regex: search, $options: 'i'}}: {}).limit(perPage).skip(perPage * (page - 1)).sort({updatedAt: -1}).populate('teams').populate('rounds.askedQuestions.question').populate('rounds.askedQuestions.givenAnswers.team');
 }
 
 function getQuizCountBySearch(search) {
-  return  Quiz.find(search ? {lobby: {$regex: search, $options: 'i'}}: {}).sort({date: -1});
+  return  Quiz.find(search ? {lobby: {$regex: search, $options: 'i'}}: {}).sort({updatedAt: -1});
 }
 
 function findQuizByLobby(lobby) {

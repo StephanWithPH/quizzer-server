@@ -33,10 +33,6 @@ const teamSchema = new mongoose.Schema({
             return undefined;
         }
     },
-    date: {
-      type: Date,
-      default: Date.now
-    }
-});
+}, {timestamps: true});
 
 module.exports = teamSchema;

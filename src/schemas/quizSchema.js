@@ -21,10 +21,6 @@ const quizSchema = new mongoose.Schema({
         required: true,
         default: false
     },
-    date: {
-        type: Date,
-        default: Date.now
-    }
-});
+}, { timestamps: true });
 
 module.exports = quizSchema;
