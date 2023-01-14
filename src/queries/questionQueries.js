@@ -41,11 +41,11 @@ async function getQuestionByQuestion(question) {
 }
 
 async function getQuestionsByOptionalSearch(search, perPage, page) {
-  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({date: -1}).populate('category');
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).limit(perPage).skip(perPage * (page - 1)).sort({updatedAt: -1}).populate('category');
 }
 
 async function getQuestionCountBySearch(search) {
-  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).sort({date: -1});
+  return Question.find(search ? { question: { $regex: search, $options : 'i' } } : {}).sort({updatedAt: -1});
 }
 
 async function updateQuestionInformationById(id, question, answer, category) {

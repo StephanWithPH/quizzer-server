@@ -31,7 +31,7 @@ function findTeamById(teamId) {
 }
 
 function getTeamImages(limit, offset) {
-  return Team.find({ image: {$regex: 'teams'} }).limit((offset * limit)).sort({date: -1});
+  return Team.find({ image: {$regex: 'teams'} }).limit((offset * limit)).sort({updatedAt: -1});
 }
 
 function getTeamImagesCount() {

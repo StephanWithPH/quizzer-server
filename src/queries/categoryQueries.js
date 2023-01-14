@@ -13,7 +13,7 @@ async function getFilteredCategories(page = 1, perPage = 10, search = '') {
   const categories = await Category.find(search ? { name: { $regex: search, $options : 'i' } } : {})
     .limit(perPage)
     .skip(perPage * (page - 1))
-    .sort({date: -1});
+    .sort({updatedAt: -1});
 
   const allQuestions = await Question.find();
 
