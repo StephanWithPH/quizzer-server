@@ -28,6 +28,12 @@ const convertBase64ToImage = async (base64String, targetFolder, imgName) => {
   }
 }
 
+const validateImageType = (base64Image) => {
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const imageType = base64Image.substring("data:".length, base64Image.indexOf(";base64"));
+  return allowedTypes.includes(imageType);
+}
+
 const deleteQuestionImage = async (image) => {
   const path = staticFolder + "/images/questions/";
 
@@ -206,5 +212,6 @@ const deleteImageFromFolder = async (targetFolder, file) => {
     deleteQuestionImage,
     deleteFolder,
     getImagesFromFolder,
-    deleteImageFromFolder
+    deleteImageFromFolder,
+    validateImageType,
   }

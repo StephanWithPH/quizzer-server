@@ -11,6 +11,7 @@ const {
 } = require("../../queries/questionQueries");
 const {deleteQuestionImage, convertBase64ToImage, deleteFolder} = require("../../helpers/imageHelper");
 const {getCategoryByName} = require("../../queries/categoryQueries");
+const {createImageTypeMiddleware} = require("../middleware");
 const router = require('express').Router();
 
 /**
@@ -76,7 +77,7 @@ router.put('/questions/:id', async (req, res, next) => {
 /**
  * Update one question's image by id
  */
-router.patch('/questions/:id', async (req, res, next) => {
+router.patch('/questions/:id', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { base64Image } = req.body;
@@ -109,7 +110,7 @@ router.patch('/questions/:id', async (req, res, next) => {
 /**
  * Create a new question
  */
-router.post('/questions', async (req, res, next) => {
+router.post('/questions', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const {question, answer, category, base64Image } = req.body;
 

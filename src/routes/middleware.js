@@ -1,6 +1,7 @@
 const {findQuizByLobby} = require("../queries/quizQueries");
 const {findTeamById} = require("../queries/teamQueries");
 const jose = require("jose");
+const {validateImageType} = require("../helpers/imageHelper");
 
 /**
  * Middleware to check if the length of the team name is not too long
@@ -11,6 +12,22 @@ const createTeamNameLengthMiddleware = (length = 30) => {
       let error = new Error("Team naam is te lang");
       error.status = 400;
       return next(error);
+    }
+    next();
+  });
+}
+
+/**
+ * Validates the provided image type
+ */
+const createImageTypeMiddleware = () => {
+  return (async (req, res, next) => {
+    if (req.body.base64Image) {
+      if (validateImageType(req.body.base64Image) === false) {
+        const error = new Error("Ongeldig bestandstype");
+        error.status = 400;
+        return next(error);
+      }
     }
     next();
   });
@@ -168,6 +185,7 @@ const createAnswerQuestionLengthMiddleware = (length = 35) => {
 
 module.exports = {
   createRoleMiddleware,
+  createImageTypeMiddleware,
   createFindQuizByLobbyCodeMiddleware,
   createQuizExistsMiddleware,
   createTeamAcceptedMiddleware,
