@@ -165,7 +165,6 @@ router.delete('/:id', async (req, res, next) => {
       message: "Vraag verwijderd",
     });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 });
