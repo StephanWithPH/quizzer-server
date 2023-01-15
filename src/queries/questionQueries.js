@@ -53,14 +53,12 @@ async function updateQuestionInformationById(id, question, answer, category) {
     question: question,
     answer: answer,
     category: category,
-    date: Date.now(),
   }, {new: true});
 }
 
 async function updateQuestionImageById(id, image) {
   return Question.findOneAndUpdate({_id: id}, {
     image: image,
-    date: Date.now(),
   }, {new: true});
 }
 

@@ -4,7 +4,6 @@ function createNewQuiz(lobby) {
   // Mongoose create new quiz with model
   const newQuiz = new Quiz({
     lobby: lobby,
-    date: Date.now()
   });
   return newQuiz.save();
 }
