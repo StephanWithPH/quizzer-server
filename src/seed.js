@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const questions = require("./questions.json");
 const Question = require("./models/question");
 const Category = require("./models/category");
+const User = require("./models/user");
 require('dotenv').config({
   path: '../.env'
 });
@@ -37,9 +38,20 @@ const insertQuestions = async () => {
   console.log("Questions created with linked categories");
 }
 
+const insertUser = async () => {
+  const user = new User();
+  user.userName = "test";
+  user.password = "password";
+  await user.save();
+
+  console.log("User seeded");
+}
+
 insertQuestions().then(() => {
-  console.log("Finished");
-  mongoose.disconnect();
+  insertUser().then(() => {
+    console.log("Finished");
+    mongoose.disconnect();
+  });
 });
 
 

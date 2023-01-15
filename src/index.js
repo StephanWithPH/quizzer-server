@@ -42,14 +42,14 @@ app.use('/api/v1/team', require('./routes/teamRoutes'));
 app.use('/api/v1/scoreboard', require('./routes/scoreboardRoutes'));
 
 app.use('/api/v1/manage', require('./routes/dashboard/adminRoutes'));
-app.use('/api/v1/manage', require('./routes/dashboard/questionRoutes'));
-app.use('/api/v1/manage', require('./routes/dashboard/categoryRoutes'));
-app.use('/api/v1/manage', require('./routes/dashboard/imageRoutes'));
-app.use('/api/v1/manage', require('./routes/dashboard/quizRoutes'));
+app.use('/api/v1/manage/questions', require('./routes/dashboard/questionRoutes'));
+app.use('/api/v1/manage/categories', require('./routes/dashboard/categoryRoutes'));
+app.use('/api/v1/manage/images', require('./routes/dashboard/imageRoutes'));
+app.use('/api/v1/manage/quizzes', require('./routes/dashboard/quizRoutes'));
 
 app.use((err, req, res, next) => {
   res.status(err.status ? err.status : 500).json({
-    error: err.message ? err.message : 'Something went wrong',
+    error: err.message ? err.message : 'Oeps, er ging iets mis. Probeer het nogmaals.',
   });
 });
 

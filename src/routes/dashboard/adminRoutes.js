@@ -1,47 +1,53 @@
 const router = require('express').Router();
-const {signJwt, verifyJwt} = require("../../helpers/jwtHelper");
+const {signJwt} = require("../../helpers/jwtHelper");
 const { getQuestionsCount } = require("../../queries/questionQueries");
 const {getQuizzesCount} = require("../../queries/quizQueries");
 const {countImages} = require("../../helpers/imageHelper");
 const {getCategories} = require("../../queries/categoryQueries");
-const {getTeamImages} = require("../../queries/teamQueries");
+const {getTeamImagesCount} = require("../../queries/teamQueries");
+const {checkIfUserAuthenticatedWithBearerToken, createRoleMiddleware,
+  createFindModelByIdMiddleware
+} = require("../middleware");
+const {findUserByUserName} = require("../../queries/userQueries");
+const User = require("../../models/user");
 
 /**
  * Admin Login
  */
 router.post('/login', async (req, res, next) => {
   try {
-    const {password} = req.body;
-    const envPassword = process.env.ADMIN_PASSWORD;
-    if (password === envPassword) {
-      const token = await signJwt({
-        role: 'admin',
-      });
-      res.status(200).json({token});
-    } else {
-      res.status(401).json({error: "Incorrect wachtwoord"});
+    const {userName, password} = req.body;
+    if(!userName || !password) {
+      let error = new Error("Niet alle velden zijn correct meegegeven");
+      error.status = 400;
+      throw error;
     }
+
+    const user = await findUserByUserName(userName);
+
+    if(!user || !await user.comparePassword(password)) {
+      let error = new Error("Gebruikersnaam en/of wachtwoord onjuist");
+      error.status = 401;
+      throw error;
+    }
+
+    const token = await signJwt({
+      role: 'admin',
+      _id: user._id
+    });
+
+    res.status(200).json({token});
   } catch (err) {
     next(err);
   }
 });
 
 /**
- * Admin Token Validation
+ * Apply middleware for 'logged in' routes
  */
-router.post('/validate', async (req, res, next) => {
-  try {
-    const { token } = req.body;
-
-    if (await verifyJwt(token)) {
-      res.status(200).json("Token is valide");
-    } else {
-      res.status(401).json({error: "Token is niet geldig"});
-    }
-  } catch (err) {
-    next(err);
-  }
-});
+router.use(checkIfUserAuthenticatedWithBearerToken());
+router.use(createRoleMiddleware('admin'));
+router.use(createFindModelByIdMiddleware(User))
 
 /**
  * Gets the counts of questions, categories, quizzes and team images
@@ -51,15 +57,15 @@ router.get('/totals', async (req, res, next) => {
     const questions = await getQuestionsCount();
     const quizzes = await getQuizzesCount();
     const categories = await getCategories();
-    const images = await getTeamImages();
+    const images = await getTeamImagesCount();
     const placeholders = await countImages('teamplaceholders');
 
     const responseObj = {
-      questions: questions,
-      quizzes: quizzes,
+      questions,
+      quizzes,
       categories: categories.length,
-      images: images.length,
-      placeholders: placeholders,
+      images,
+      placeholders,
     }
 
     res.status(200).json(responseObj);

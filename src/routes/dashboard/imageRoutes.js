@@ -1,12 +1,22 @@
 const {getTeamImages, getTeamImagesCount} = require("../../queries/teamQueries");
 const {getImagesFromFolder, deleteImageFromFolder, findImageByName, getNewPlaceholderNumber, convertBase64ToImage} = require("../../helpers/imageHelper");
-const {createImageTypeMiddleware} = require("../middleware");
+const {createImageTypeMiddleware, checkIfUserAuthenticatedWithBearerToken, createRoleMiddleware,
+  createFindModelByIdMiddleware
+} = require("../middleware");
+const User = require("../../models/user");
 const router = require('express').Router();
+
+/**
+ * Apply middleware for 'logged in' routes
+ */
+router.use(checkIfUserAuthenticatedWithBearerToken());
+router.use(createRoleMiddleware('admin'));
+router.use(createFindModelByIdMiddleware(User));
 
 /**
  * Get all the team images
  */
-router.get('/images', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const { limit, offset } = req.query;
 
@@ -25,7 +35,7 @@ router.get('/images', async (req, res, next) => {
 /**
  * Get all the placeholder images
  */
-router.get('/images/placeholder', async (req, res, next) => {
+router.get('/placeholder', async (req, res, next) => {
   try {
     const { limit, offset } = req.query;
 
@@ -47,7 +57,7 @@ router.get('/images/placeholder', async (req, res, next) => {
 /**
  * Delete a placeholder image
  */
-router.delete('/images/placeholder/:name', async (req, res, next) => {
+router.delete('/placeholder/:name', async (req, res, next) => {
   try {
     const { name } = req.params;
     const file = await findImageByName('teamplaceholders', name);
@@ -64,7 +74,7 @@ router.delete('/images/placeholder/:name', async (req, res, next) => {
 /**
  * Create a new placeholder image
  */
-router.post('/images/placeholder', createImageTypeMiddleware(), async (req, res, next) => {
+router.post('/placeholder', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const { base64Image } = req.body;
 

@@ -11,13 +11,23 @@ const {
 } = require("../../queries/questionQueries");
 const {deleteQuestionImage, convertBase64ToImage, deleteFolder} = require("../../helpers/imageHelper");
 const {getCategoryByName} = require("../../queries/categoryQueries");
-const {createImageTypeMiddleware} = require("../middleware");
+const {createImageTypeMiddleware, checkIfUserAuthenticatedWithBearerToken, createRoleMiddleware,
+  createFindModelByIdMiddleware
+} = require("../middleware");
+const User = require("../../models/user");
 const router = require('express').Router();
+
+/**
+ * Apply middleware for 'logged in' routes
+ */
+router.use(checkIfUserAuthenticatedWithBearerToken());
+router.use(createRoleMiddleware('admin'));
+router.use(createFindModelByIdMiddleware(User));
 
 /**
  * Get one question by id
  */
-router.get('/questions/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const question = await getQuestionById(id);
@@ -35,7 +45,7 @@ router.get('/questions/:id', async (req, res, next) => {
 /**
  * Get questions by page and/or search the questions
  */
-router.get('/questions', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const { search, page, perPage } = req.query;
 
@@ -55,7 +65,7 @@ router.get('/questions', async (req, res, next) => {
 /**
  * Update one question's information by id
  */
-router.put('/questions/:id', async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const { question, answer, category } = req.body;
@@ -77,7 +87,7 @@ router.put('/questions/:id', async (req, res, next) => {
 /**
  * Update one question's image by id
  */
-router.patch('/questions/:id', createImageTypeMiddleware(), async (req, res, next) => {
+router.patch('/:id', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { base64Image } = req.body;
@@ -110,7 +120,7 @@ router.patch('/questions/:id', createImageTypeMiddleware(), async (req, res, nex
 /**
  * Create a new question
  */
-router.post('/questions', createImageTypeMiddleware(), async (req, res, next) => {
+router.post('/', createImageTypeMiddleware(), async (req, res, next) => {
   try {
     const {question, answer, category, base64Image } = req.body;
 
@@ -139,7 +149,7 @@ router.post('/questions', createImageTypeMiddleware(), async (req, res, next) =>
 /**
  * Delete one question
  */
-router.delete('/questions/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -163,7 +173,7 @@ router.delete('/questions/:id', async (req, res, next) => {
 /**
  * Delete all questions
  */
-router.delete('/questions', async (req, res, next) => {
+router.delete('/', async (req, res, next) => {
   try {
     await deleteAllQuestions();
     await deleteFolder('questions');

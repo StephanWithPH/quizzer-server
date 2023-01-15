@@ -18,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "base64image-to-file": "^1.2.0",
+    "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

@@ -7,7 +7,7 @@ const {
   createTeamAcceptedMiddleware, createFindTeamByIdMiddleware,
   createTeamExistsMiddleware, createTeamNameLengthMiddleware, createAnswerQuestionLengthMiddleware,
   createTeamNameExistsMiddleware, createAnswerExistsMiddleware,
-  checkIfUserAuthenticatedWithBearerToken
+  checkIfUserAuthenticatedWithBearerToken, createFindModelByIdMiddleware
 } = require("./middleware");
 const {getAllRoundsWithoutAnswers, addGivenAnswerToAskedQuestion} = require("../queries/roundQueries");
 const base64ImageToFile = require('base64image-to-file');
@@ -15,6 +15,7 @@ const Path = require("path");
 const {signJwt} = require("../helpers/jwtHelper");
 const crypto = require("crypto");
 const {staticFolder} = require("../constants");
+const Team = require("../models/team");
 
 /**
  * Join with a team
@@ -95,7 +96,7 @@ router.post('/quizzes/:lobby/teams', createTeamNameExistsMiddleware(), createTea
 router.use(checkIfUserAuthenticatedWithBearerToken());
 router.use(createRoleMiddleware('team'));
 router.use(createFindQuizByLobbyCodeMiddleware());
-router.use(createFindTeamByIdMiddleware());
+router.use(createFindModelByIdMiddleware(Team));
 router.use(createTeamExistsMiddleware());
 router.use(createTeamAcceptedMiddleware());
 router.use(createQuizExistsMiddleware());

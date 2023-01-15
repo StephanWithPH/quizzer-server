@@ -1,13 +1,25 @@
 const {getCategories, getFilteredCategories, createCategory, deleteCategory, getCategoryById, getCategoryByName,
   updateCategory
 } = require("../../queries/categoryQueries");
+const {checkIfUserAuthenticatedWithBearerToken, createRoleMiddleware,
+  createFindModelByIdMiddleware
+} = require("../middleware");
 const router = require('express').Router();
+const User = require("../../models/user");
 
+
+
+/**
+ * Apply middleware for 'logged in' routes
+ */
+router.use(checkIfUserAuthenticatedWithBearerToken());
+router.use(createRoleMiddleware('admin'));
+router.use(createFindModelByIdMiddleware(User));
 
 /**
  * Gets all the categories from the questions
  */
-router.get('/categories', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const { page, perPage, search } = req.query;
     if (page && perPage) {
@@ -29,7 +41,7 @@ router.get('/categories', async (req, res, next) => {
 /**
  * Gets a category by id
  */
-router.get('/categories/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -43,7 +55,7 @@ router.get('/categories/:id', async (req, res, next) => {
 /**
  * Updates a category
  */
-router.put('/categories/:id', async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -64,7 +76,7 @@ router.put('/categories/:id', async (req, res, next) => {
 /**
  * Creates a new category
  */
-router.post('/categories', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { name } = req.body;
 
@@ -91,7 +103,7 @@ router.post('/categories', async (req, res, next) => {
 /**
  * Deleted a category
  */
-router.delete('/categories/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
 

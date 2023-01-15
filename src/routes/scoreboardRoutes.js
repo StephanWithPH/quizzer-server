@@ -28,15 +28,12 @@ router.post('/quizzes/:lobby/scoreboards', async (req, res, next) => {
     // Let the quizmaster know the scoreboard has been connected
     broadcastToQuizmaster("SCOREBOARD_CONNECTED", lobby);
 
-    const jwt = await signJwt({
+    const token = await signJwt({
       role: 'sb',
       lobby: lobby
     }) ;
 
-    res.status(200).json({
-      message: "Scoreboard connected",
-      token: jwt,
-    });
+    res.status(200).json({token});
   }
   catch (e) {
     next(e);

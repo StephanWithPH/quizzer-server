@@ -1,10 +1,21 @@
 const {getFilteredQuizzes, getQuizCountBySearch} = require("../../queries/quizQueries");
+const {checkIfUserAuthenticatedWithBearerToken, createRoleMiddleware,
+  createFindModelByIdMiddleware
+} = require("../middleware");
+const User = require("../../models/user");
 const router = require('express').Router();
+
+/**
+ * Apply middleware for 'logged in' routes
+ */
+router.use(checkIfUserAuthenticatedWithBearerToken());
+router.use(createRoleMiddleware('admin'));
+router.use(createFindModelByIdMiddleware(User));
 
 /**
  * Gets all the quizzes
  */
-router.get('/quizzes', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const {page, perPage, search} = req.query;
 

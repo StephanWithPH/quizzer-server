@@ -2,6 +2,8 @@ const {findQuizByLobby} = require("../queries/quizQueries");
 const {findTeamById} = require("../queries/teamQueries");
 const jose = require("jose");
 const {validateImageType} = require("../helpers/imageHelper");
+const {findUserById} = require("../queries/userQueries");
+const Team = require("../models/team");
 
 /**
  * Middleware to check if the length of the team name is not too long
@@ -48,29 +50,32 @@ const createTeamNameExistsMiddleware = () => {
 }
 
 /**
- * Middleware to check if role is really quizmaster (make sepearate function if used in multiple places)
+ * Middleware to check if role is really a certain role
  */
 const createRoleMiddleware = (role) => {
   return (req, res, next) => {
     if(req.session.role !== role) {
-      let error = new Error("Niet geauthorizeerd voor deze route");
-      error.status = 401;
+      let error = new Error("Deze route is niet toegankelijk met uw rol");
+      error.status = 403;
       return next(error);
     }
     next();
   }
 }
 
+/**
+ * Middleware to check if user is authenticated with a valid bearer token
+ */
 const checkIfUserAuthenticatedWithBearerToken = () => async (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
   if (!authorizationHeader) {
-    const error = new Error('No authorization header found');
+    const error = new Error('Geen authorisatie header meegegeven');
     error.status = 401;
     return next(error);
   }
   const token = authorizationHeader.split(' ')[1];
   if (!token) {
-    const error = new Error('No token found in authorization header');
+    const error = new Error('Geen token gevonden in de authorisatie header');
     error.status = 401;
     return next(error);
   }
@@ -87,7 +92,7 @@ const checkIfUserAuthenticatedWithBearerToken = () => async (req, res, next) => 
 
     next();
   } catch (e) {
-    const error = new Error("Invalid token");
+    const error = new Error("Ongeldige sessie");
     error.status = 401;
     next(error);
   }
@@ -104,11 +109,17 @@ const createFindQuizByLobbyCodeMiddleware = () => {
 }
 
 /**
- * Middleware to find team by id
+ * Middleware to find model by id, else return error
  */
-const createFindTeamByIdMiddleware = () => {
+const createFindModelByIdMiddleware = (model) => {
   return (async (req, res, next) => {
-    req.team = await findTeamById(req.session._id);
+    const foundModel = await model.findById(req.session._id);
+    if(!foundModel) {
+      const error = new Error(`Ingelogde gebruiker van type ${model.collection.modelName} niet gevonden`);
+      error.status = 404;
+      return next(error);
+    }
+    req[model.collection.modelName.toLowerCase()] = foundModel;
     next();
   });
 }
@@ -189,11 +200,11 @@ module.exports = {
   createFindQuizByLobbyCodeMiddleware,
   createQuizExistsMiddleware,
   createTeamAcceptedMiddleware,
-  createFindTeamByIdMiddleware,
   createTeamExistsMiddleware,
   createTeamNameLengthMiddleware,
   createAnswerQuestionLengthMiddleware,
   createTeamNameExistsMiddleware,
   createAnswerExistsMiddleware,
-  checkIfUserAuthenticatedWithBearerToken
+  checkIfUserAuthenticatedWithBearerToken,
+  createFindModelByIdMiddleware,
 }
