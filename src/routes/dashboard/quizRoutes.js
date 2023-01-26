@@ -1,4 +1,4 @@
-const {getFilteredQuizzes, getQuizCountBySearch} = require("../../queries/quizQueries");
+const {getFilteredQuizzes, getQuizCountBySearch, findQuizById} = require("../../queries/quizQueries");
 const router = require('express').Router();
 
 /**
@@ -15,6 +15,27 @@ router.get('/quizzes', async (req, res, next) => {
       quizzes,
       total: total.length,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Gets a single quiz by id
+ */
+router.get('/quizzes/:id', async (req, res, next) => {
+  try {
+    const {id} = req.params;
+
+    const quiz = await findQuizById(id);
+
+    if (!quiz) {
+      return res.status(404).json({
+        message: 'Quiz not found',
+      });
+    }
+
+    res.status(200).json(quiz);
   } catch (err) {
     next(err);
   }

@@ -8,6 +8,10 @@ function createNewQuiz(lobby) {
   return newQuiz.save();
 }
 
+function findQuizById(id) {
+  return Quiz.findById(id).populate('teams').populate('rounds.askedQuestions.question').populate('rounds.askedQuestions.givenAnswers.team');
+}
+
 function getFilteredQuizzes(page, perPage, search) {
   return Quiz.find(search ? {lobby: {$regex: search, $options: 'i'}}: {}).limit(perPage).skip(perPage * (page - 1)).sort({updatedAt: -1}).populate('teams').populate('rounds.askedQuestions.question').populate('rounds.askedQuestions.givenAnswers.team');
 }
@@ -34,5 +38,6 @@ module.exports = {
   getQuizCountBySearch,
   endQuiz,
   getQuizzesCount,
-  getFilteredQuizzes
+  getFilteredQuizzes,
+  findQuizById,
 }
