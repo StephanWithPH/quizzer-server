@@ -24,14 +24,12 @@ export const setSocketIOServer = (server: Server) => {
                 socket.data.lobby = payload.lobby;
                 socket.data._id = payload._id;
 
+                socket.join(payload.lobby as string);
+
                 logging.log(socket.id, 'Authenticated.');
             } catch (e) {
                 logging.error(e);
             }
-        });
-
-        socket.on('JOIN', (lobby: string) => {
-            socket.join(lobby);
         });
 
         socket.on('disconnect', () => {
