@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'fs';
-import { STATIC_FOLDER } from '../config/constants';
+import { STATIC_FOLDER, STATIC_FOLDER_NAME, TEAM_IMAGES_FOLDER_NAME } from '../config/constants';
 import crypto from 'crypto';
 
 export function writeBase64ToFileInTargetFolder(image: string) {
@@ -19,5 +19,5 @@ export function writeBase64ToFileInTargetFolder(image: string) {
 
     fs.writeFileSync(imagePath, buffer);
 
-    return imagePath;
+    return path.join(STATIC_FOLDER_NAME, TEAM_IMAGES_FOLDER_NAME, imgName + '.png');
 }

@@ -13,8 +13,8 @@ import { getAllRounds } from '../queries/roundQueries';
     '/scoreboard',
     createBearerMiddleware(),
     createRoleMiddleware(Role.SCOREBOARD),
-    createQuizExistsMiddleware(),
-    createFindQuizByLobbyCodeMiddleware()
+    createFindQuizByLobbyCodeMiddleware(),
+    createQuizExistsMiddleware()
 )
 export class ScoreboardController {
     /**

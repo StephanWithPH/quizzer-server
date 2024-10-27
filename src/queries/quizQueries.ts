@@ -8,7 +8,7 @@ export function createNewQuiz(lobby: string) {
 }
 
 export function findQuizByLobby(lobby: string | undefined) {
-    return Quiz.findOne({ lobby: lobby, finished: false })
+    return Quiz.findOne({ lobby: lobby })
         .populate('teams')
         .populate('rounds.askedQuestions.question')
         .populate('rounds.askedQuestions.givenAnswers.team');
